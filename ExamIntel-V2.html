@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExamIntel Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;font-family:'Poppins',sans-serif}
+body{--bg:#f8f9fa;--card:#fff;--border:#eee;--text:#1a1a1a;--sub:#888;--accent:#667eea;--accent2:#764ba2;background:var(--bg);color:var(--text)}
+body.dark{--bg:#0d0f1a;--card:#1a1f3a;--border:#2a3050;--text:#e0e0e0;--sub:#666}
+body.green{--bg:#f0fff4;--card:#fff;--border:#c6f6d5;--accent:#22c55e;--accent2:#16a34a}
+body.purple{--bg:#faf5ff;--card:#fff;--border:#e9d5ff;--accent:#9333ea;--accent2:#7e22ce}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#ccc;border-radius:4px}
+body.dark ::-webkit-scrollbar-thumb{background:#444}
+
+/* SCREENS */
+.screen{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:9999;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.screen.off{display:none!important}
+.box{background:#fff;border-radius:20px;padding:48px 44px;width:90%;max-width:480px;box-shadow:0 30px 80px rgba(0,0,0,.35);text-align:center}
+.box h1{font-size:42px;margin-bottom:10px}.box h2{font-size:22px;font-weight:800;color:#000;margin-bottom:6px}.box p{font-size:13px;color:#888;margin-bottom:26px}
+.inp{width:100%;padding:13px 16px;border:2px solid #ddd;border-radius:8px;font-size:13px;font-family:inherit;transition:.3s;margin-bottom:11px;background:#fff;color:#000}
+.inp:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 4px rgba(102,126,234,.1)}
+.inp.err{border-color:#f00}
+select.inp{cursor:pointer}
+.btn{width:100%;padding:14px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.3s;margin-top:4px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(102,126,234,.4)}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn.g{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.etxt{color:#f00;font-size:12px;font-weight:700;margin-bottom:8px;min-height:16px;text-align:left}
+.lnk{font-size:12px;color:#667eea;cursor:pointer;margin-top:14px;display:inline-block;text-decoration:underline}
+
+/* USER PICKER */
+.upick{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-bottom:18px;max-height:300px;overflow-y:auto}
+.upc{background:#f5f5f5;border:2px solid #ddd;border-radius:10px;padding:16px 10px;cursor:pointer;transition:.3s;text-align:center}
+.upc:hover{transform:translateY(-4px);border-color:#667eea;box-shadow:0 8px 20px rgba(102,126,234,.2)}
+.upc .av{font-size:30px;margin-bottom:6px}.upc .un{font-size:12px;font-weight:700;color:#000}
+
+/* APP */
+#app{display:none;width:100%;height:100vh;grid-template-columns:1fr 300px}
+#app.on{display:grid}
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--card)}
+.header{background:var(--card);border-bottom:2px solid var(--border);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.logo{font-size:16px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hright{display:flex;gap:8px;align-items:center}
+.hbtn{padding:7px 12px;background:var(--bg);border:2px solid var(--border);border-radius:6px;cursor:pointer;font-weight:600;font-size:11px;color:var(--text);font-family:inherit}
+.hbtn:hover{border-color:var(--accent)}.hbtn.red{background:#f00;color:#fff;border-color:#f00}
+.tabs{display:flex;padding:0 16px;border-bottom:2px solid var(--border);background:var(--card);flex-shrink:0;overflow-x:auto}
+.tbtn{padding:11px 14px;background:none;border:none;cursor:pointer;font-weight:600;color:var(--sub);border-bottom:3px solid transparent;font-family:inherit;font-size:12px;white-space:nowrap;transition:.3s}
+.tbtn.on{color:var(--accent);border-bottom-color:var(--accent)}
+.body{flex:1;overflow-y:auto;padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.pane{display:none}.pane.on{display:contents}
+.fp{display:none;grid-column:1/-1}.fp.on{display:block}
+.sec{background:var(--card);border-radius:12px;padding:18px;border:2px solid var(--border);margin-bottom:16px}
+.sec h3{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--text)}
+
+/* API BANNER */
+.apib{background:#c00;color:#fff;padding:14px;border-radius:10px;margin-bottom:14px;border:2px solid #900}
+.apib label{display:block;font-weight:800;font-size:11px;margin-bottom:6px}
+.apib input{width:100%;padding:10px;border:none;border-radius:6px;font-family:monospace;font-size:11px;color:#000;margin-bottom:8px}
+.abtns{display:flex;gap:8px}.abtns button{flex:1;padding:8px;border:none;border-radius:6px;cursor:pointer;font-weight:800;font-size:11px;font-family:inherit}
+.absave{background:#000;color:#fff}.abtest{background:#fff;color:#c00}
+#ks{font-size:11px;font-weight:700;margin-top:6px;min-height:14px}
+
+/* PREDICTOR */
+.dz{border:2px dashed #aaa;border-radius:10px;padding:26px;text-align:center;cursor:pointer;background:var(--bg);margin-bottom:12px;transition:.3s}
+.dz:hover{border-color:var(--accent);background:#f0f0ff}
+body.dark .dz:hover{background:#1a2040}
+.fl{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;max-height:110px;overflow-y:auto}
+.fi{background:var(--bg);padding:7px 10px;border-radius:6px;font-size:11px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border)}
+.xb{background:#f00;color:#fff;border:none;padding:2px 7px;border-radius:3px;cursor:pointer;font-size:10px}
+.ab{width:100%;padding:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:8px;font-weight:800;cursor:pointer;margin-bottom:12px;font-family:inherit;font-size:13px;transition:.3s}
+.ab:hover{opacity:.9;transform:translateY(-1px)}.ab:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.po{background:var(--bg);padding:14px;border-radius:8px;font-size:12px;max-height:400px;overflow-y:auto;color:var(--text);line-height:1.7;border:1px solid var(--border)}
+.po h3,.po strong{color:var(--accent)}.po ul{margin-left:16px}.po p{margin-bottom:8px}
+
+/* TODO */
+.trow{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.trow input{flex:1;min-width:160px;padding:9px 12px;border:2px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--card);color:var(--text)}
+.trow input:focus{outline:none;border-color:var(--accent)}
+.trow button,.trow select{padding:9px 12px;border:2px solid var(--border);border-radius:8px;font-size:11px;font-family:inherit;cursor:pointer;background:var(--card);color:var(--text)}
+.trow button{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+.tlist{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto}
+.ti{display:flex;gap:10px;padding:10px 12px;background:var(--bg);border-radius:8px;align-items:center;font-size:12px;border:1px solid var(--border);transition:.3s}
+.ti:hover{border-color:var(--accent)}.ti input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--accent)}
+.ti span{flex:1;color:var(--text)}.ti span.dn{opacity:.5;text-decoration:line-through}
+.ptag{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;color:#fff;margin-right:4px}
+.tstats{font-size:11px;color:var(--sub);margin-bottom:10px;padding:8px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)}
+
+/* NEWS */
+.nc{background:var(--bg);border-radius:10px;padding:14px;margin-bottom:12px;border:1px solid var(--border);border-left:4px solid var(--accent);transition:.3s;cursor:pointer}
+.nc:hover{transform:translateX(4px)}
+.ntag{display:inline-block;padding:2px 8px;background:var(--accent);color:#fff;border-radius:20px;font-size:10px;font-weight:700;margin-bottom:6px}
+.ntit{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.ndesc{font-size:11px;color:var(--sub);line-height:1.5}.ndate{font-size:10px;color:var(--sub);margin-top:6px}
+
+/* EXAM VAULT */
+.eg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.ec{background:var(--bg);border:2px solid var(--border);border-radius:10px;padding:11px 7px;text-align:center;cursor:pointer;transition:.3s;text-decoration:none;display:block}
+.ec:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,.1)}
+.ec .ei{font-size:20px;margin-bottom:3px}.ec .en{font-size:10px;font-weight:700;color:var(--text)}.ec .ecat{font-size:9px;color:var(--sub)}
+.smb{width:100%;padding:8px;background:var(--bg);border:2px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-size:11px;color:var(--accent);font-family:inherit;transition:.3s}
+.smb:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* PYQ */
+.pyq{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.pyq .pn{font-size:12px;font-weight:700;color:var(--text)}.pyq .py{font-size:10px;color:var(--sub);margin-top:2px}
+.pyqls{display:flex;gap:6px;flex-wrap:wrap}
+.pyqls a{padding:4px 10px;background:var(--accent);color:#fff;border-radius:4px;font-size:10px;font-weight:700;text-decoration:none;transition:.3s}
+.pyqls a:hover{opacity:.8}
+
+/* USERS TAB */
+.ug{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+.uc{background:var(--bg);border:2px solid var(--border);border-radius:10px;padding:16px;text-align:center;transition:.3s}
+.uc.me{border-color:var(--accent);background:linear-gradient(135deg,rgba(102,126,234,.06),rgba(118,75,162,.06))}
+.uc .uav{font-size:28px;margin-bottom:6px}.uc .unn{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px}.uc .uex{font-size:10px;color:var(--sub)}
+.ubr{display:flex;gap:6px;margin-top:10px}
+.ubr button{flex:1;padding:6px;border:none;border-radius:4px;cursor:pointer;font-weight:700;font-size:10px;font-family:inherit}
+.uuse{background:var(--accent);color:#fff}.udel{background:#f00;color:#fff}
+.nuf{background:var(--bg);border:2px solid var(--border);border-radius:10px;padding:18px;max-width:300px}
+.nuf input{width:100%;padding:11px;border:2px solid var(--border);border-radius:8px;margin-bottom:10px;font-size:12px;font-family:inherit;background:var(--card);color:var(--text)}
+.nuf button{width:100%;padding:12px;background:#22c55e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:800;font-size:13px;font-family:inherit}
+
+/* SETTINGS */
+.thms{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.thc{width:56px;height:56px;border-radius:10px;cursor:pointer;border:3px solid transparent;transition:.3s;position:relative;display:flex;align-items:center;justify-content:center}
+.thc:hover{transform:scale(1.1)}.thc.on{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,255,255,.5)}
+.thc .tk{font-size:18px;display:none}.thc.on .tk{display:block}
+.pfield{margin-bottom:12px}.pfield label{display:block;font-size:11px;font-weight:700;margin-bottom:4px;color:var(--sub)}
+.pfield input,.pfield select{width:100%;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--card);color:var(--text)}
+
+/* SWITCH MODAL */
+.mbg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:8888;backdrop-filter:blur(4px)}
+.mbg.off{display:none!important}
+.mb{background:#fff;border-radius:16px;padding:34px;max-width:380px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.mb h3{font-size:18px;font-weight:800;margin-bottom:6px;color:#000}.mb p{font-size:12px;color:#888;margin-bottom:18px}
+
+/* SIDEBAR */
+.sidebar{background:var(--card);border-left:2px solid var(--border);display:flex;flex-direction:column}
+.sbh{padding:10px 12px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.sbh-title{font-size:12px;font-weight:700;color:var(--text);flex:1;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sbh-title:hover{color:var(--accent)}
+.sbh-btn{padding:4px 8px;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700;font-family:inherit;background:var(--accent);color:#fff;white-space:nowrap}
+.sbh-btn.grey{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+.chat-list{background:var(--bg);border-bottom:2px solid var(--border);max-height:160px;overflow-y:auto;flex-shrink:0}
+.chat-list.hidden{display:none}
+.cli{padding:8px 12px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border);transition:.2s}
+.cli:hover{background:var(--border)}
+.cli.active{background:linear-gradient(135deg,rgba(102,126,234,.12),rgba(118,75,162,.08));font-weight:700;color:var(--accent)}
+.cli-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.cli.active .cli-name{color:var(--accent)}
+.cli-del{background:none;border:none;cursor:pointer;font-size:11px;color:#f00;padding:0 2px;opacity:0;transition:.2s}
+.cli:hover .cli-del{opacity:1}
+.msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+.msg{padding:9px 11px;border-radius:8px;font-size:12px;line-height:1.5;max-width:88%}
+.msg.u{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;margin-left:auto;border-radius:12px 4px 12px 12px}
+.msg.b{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:4px 12px 12px 12px}
+.sbf{padding:10px;border-top:2px solid var(--border);display:flex;gap:8px;background:var(--card);flex-shrink:0}
+.sbf input{flex:1;padding:9px;border:2px solid var(--border);border-radius:8px;font-size:11px;font-family:inherit;background:var(--bg);color:var(--text)}
+.sbf button{padding:9px 13px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:11px}
+
+.footer{position:fixed;bottom:12px;right:12px;background:var(--accent);color:#fff;padding:10px 14px;border-radius:10px;font-size:10px;text-align:right;z-index:100;line-height:1.6}
+.footer a{color:#fff;text-decoration:none}
+
+@media(max-width:1100px){
+  #app.on{grid-template-columns:1fr}.body{grid-template-columns:1fr}.sidebar{display:none}.eg{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- SCREEN: PICK USER -->
+<div id="sA" class="screen">
+  <div class="box">
+    <div id="vPick">
+      <h1>📊</h1><h2>ExamIntel Pro</h2>
+      <p id="pickSub">Who's studying today?</p>
+      <div class="upick" id="upick"></div>
+    </div>
+    <div id="vCreate" style="display:none">
+      <h1>👋</h1><h2>Create Account</h2><p>Set your name and a password</p>
+      <input class="inp" id="cn" type="text" placeholder="Your name (e.g. Badrinath G)">
+      <input class="inp" id="cp" type="password" placeholder="Create password (min 4 chars)">
+      <input class="inp" id="cp2" type="password" placeholder="Confirm password">
+      <div class="etxt" id="ce"></div>
+      <button class="btn" onclick="doCreate()">Create Account →</button>
+      <span class="lnk" onclick="showPick()">← Back to users</span>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: ENTER PASSWORD -->
+<div id="sB" class="screen off">
+  <div class="box">
+    <h1 id="pAv">👤</h1>
+    <h2 id="pNm">Enter Password</h2>
+    <p>Enter your password to continue</p>
+    <input class="inp" id="pi" type="password" placeholder="Your password">
+    <div class="etxt" id="pe"></div>
+    <button class="btn" onclick="checkPwd()">Sign In →</button>
+    <span class="lnk" onclick="backPick()">← Back to users</span>
+  </div>
+</div>
+
+<!-- SCREEN: PROFILE SETUP -->
+<div id="sC" class="screen off">
+  <div class="box">
+    <h1>✏️</h1><h2>Set Up Your Profile</h2><p>Personalises your experience</p>
+    <select class="inp" id="prCl"><option value="">Class / Year...</option>
+      <option>Class 10</option><option>Class 11</option><option>Class 12</option>
+      <option>B.Tech Yr 1</option><option>B.Tech Yr 2</option><option>B.Tech Yr 3</option><option>B.Tech Yr 4</option>
+      <option>Aspirant / Dropper</option><option>Working Professional</option>
+    </select>
+    <input class="inp" id="prIn" placeholder="School / College name">
+    <select class="inp" id="prEx"><option value="">Target Exam...</option>
+      <option>JEE Main</option><option>JEE Advanced</option><option>NEET UG</option>
+      <option>UPSC CSE</option><option>CAT</option><option>GATE</option>
+      <option>CLAT</option><option>CUET</option><option>IPMAT</option>
+      <option>SSC CGL</option><option>IBPS PO</option><option>NDA</option><option>Other</option>
+    </select>
+    <button class="btn" onclick="saveProf()">Save & Start →</button>
+    <span class="lnk" onclick="skipProf()">Skip for now</span>
+  </div>
+</div>
+
+<!-- SWITCH PASSWORD MODAL -->
+<div class="mbg off" id="swM">
+  <div class="mb">
+    <h3 id="swT">Switch User</h3><p id="swS">Enter password to switch</p>
+    <input class="inp" id="swP" type="password" placeholder="Password" style="text-align:center">
+    <div class="etxt" id="swE" style="text-align:center"></div>
+    <button class="btn" onclick="doSwitch()" style="margin-bottom:10px">Confirm →</button><br>
+    <span class="lnk" onclick="cancelSw()">Cancel</span>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="main">
+    <div class="header">
+      <div class="logo">📊 ExamIntel Pro</div>
+      <div class="hright">
+        <span id="hName" style="font-size:12px;font-weight:700;color:var(--text)"></span>
+        <select id="uSel" class="hbtn" onchange="reqSwitch(this.value)" style="font-family:inherit"></select>
+        <button class="hbtn red" onclick="doLogout()">Logout</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tbtn on" data-tab="tools">🔮 Predictor</button>
+      <button class="tbtn" data-tab="todo">📝 To-Do</button>
+      <button class="tbtn" data-tab="vault">📚 Exam Vault</button>
+      <button class="tbtn" data-tab="pyq">📄 PYQ Papers</button>
+      <button class="tbtn" data-tab="news">📰 News</button>
+      <button class="tbtn" data-tab="users">👥 Users</button>
+      <button class="tbtn" data-tab="settings">⚙️ Settings</button>
+    </div>
+    <div class="body">
+
+      <!-- PREDICTOR TAB -->
+      <div class="pane on" id="tab-tools">
+        <div>
+          <div class="apib">
+            <label>🔑 COHERE API KEY (PRIVATE — SAVED PER USER)</label>
+            <input type="text" id="apiI" placeholder="Paste your Cohere key here..." oninput="saveApi()">
+            <div class="abtns">
+              <button class="absave" onclick="saveApi();this.textContent='✅ Saved!';setTimeout(()=>this.textContent='💾 Save',1500)">💾 Save</button>
+              <button class="abtest" onclick="testKey()">🧪 Test Key</button>
+            </div>
+            <div id="ks"></div>
+            <small style="font-size:10px;opacity:.85;margin-top:4px;display:block">Free key: <a href="https://dashboard.cohere.com/api-keys" target="_blank" style="color:#fff;font-weight:800">dashboard.cohere.com/api-keys</a></small>
+          </div>
+          <div class="sec">
+            <h3>🔮 Paper Predictor + Question Prediction</h3>
+            <div class="dz" id="dz" onclick="document.getElementById('fi').click()">
+              <div style="font-size:22px">📄</div>
+              <p style="font-size:12px;color:var(--sub);margin:4px 0"><b>Click or drag previous year PDFs</b></p>
+              <p style="font-size:10px;color:var(--sub)">Upload 2+ papers for best prediction</p>
+              <input type="file" id="fi" accept=".pdf" multiple style="display:none">
+            </div>
+            <div class="fl" id="fl"></div>
+            <button class="ab" id="pb" onclick="predict()">🚀 Predict Paper + Likely Questions</button>
+            <div class="po" id="po" style="display:none"></div>
+          </div>
+        </div>
+        <div>
+          <div class="sec">
+            <h3>👤 Your Profile</h3>
+            <div class="pfield"><label>Class / Year</label><input id="eClass" placeholder="Class 12" oninput="updProf()"></div>
+            <div class="pfield"><label>School / College</label><input id="eInst" placeholder="Slate The School" oninput="updProf()"></div>
+            <div class="pfield"><label>Target Exam</label>
+              <select id="eExam" onchange="updProf()">
+                <option value="">Select exam...</option>
+                <option>JEE Main</option><option>JEE Advanced</option><option>NEET UG</option>
+                <option>UPSC CSE</option><option>CAT</option><option>GATE</option>
+                <option>CLAT</option><option>CUET</option><option>IPMAT</option>
+                <option>SSC CGL</option><option>IBPS PO</option><option>NDA</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TODO TAB -->
+      <div class="fp" id="tab-todo">
+        <div class="sec">
+          <h3>📝 Study To-Do List</h3>
+          <div class="trow">
+            <input type="text" id="tIn" placeholder="Add a study task...">
+            <select id="tPr">
+              <option value="normal">Normal</option>
+              <option value="high">🔴 High</option>
+              <option value="med">🟡 Medium</option>
+              <option value="low">🟢 Low</option>
+            </select>
+            <button onclick="addTodo()">Add</button>
+            <select id="tFl" onchange="renderTodos()">
+              <option value="all">All</option>
+              <option value="pend">Pending</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+          <div class="tstats" id="tStats"></div>
+          <div class="tlist" id="tList"></div>
+        </div>
+      </div>
+
+      <!-- VAULT TAB -->
+      <div class="fp" id="tab-vault">
+        <div class="sec">
+          <h3>📚 Complete Exam Vault — All Major Indian Exams</h3>
+          <div id="vaultContent"></div>
+        </div>
+      </div>
+
+      <!-- PYQ TAB -->
+      <div class="fp" id="tab-pyq">
+        <div class="sec">
+          <h3>📄 Previous Year Question Papers</h3>
+          <p style="font-size:12px;color:var(--sub);margin-bottom:16px">Official &amp; trusted sources. Click links to access.</p>
+          <div id="pyqC"></div>
+        </div>
+      </div>
+
+      <!-- NEWS TAB -->
+      <div class="fp" id="tab-news">
+        <div class="sec">
+          <h3>📰 Latest Exam News</h3>
+          <button class="ab" onclick="getNews()" style="margin-bottom:16px">🔄 Refresh Latest News</button>
+          <div id="newsOut"><p style="font-size:12px;color:var(--sub)">Click Refresh to load exam news.</p></div>
+        </div>
+      </div>
+
+      <!-- USERS TAB -->
+      <div class="fp" id="tab-users">
+        <div class="sec"><h3>👥 All Users</h3><div class="ug" id="ugrid"></div></div>
+        <div class="sec" style="margin-top:0">
+          <h3>➕ Create New User</h3>
+          <div class="nuf">
+            <input type="text" id="nuN" placeholder="Name">
+            <input type="password" id="nuP" placeholder="Password">
+            <input type="password" id="nuP2" placeholder="Confirm password">
+            <button onclick="createFromApp()">Create User</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS TAB -->
+      <div class="fp" id="tab-settings">
+        <div class="sec">
+          <h3>🎨 Theme</h3>
+          <div class="thms">
+            <div class="thc on" id="th-light" style="background:linear-gradient(135deg,#f8f9fa,#fff);border:3px solid #ddd" onclick="setTheme('light')" title="Light"><span class="tk">✓</span></div>
+            <div class="thc" id="th-dark" style="background:linear-gradient(135deg,#0d0f1a,#1a1f3a)" onclick="setTheme('dark')" title="Dark"><span class="tk" style="color:#fff">✓</span></div>
+            <div class="thc" id="th-purple" style="background:linear-gradient(135deg,#9333ea,#7e22ce)" onclick="setTheme('purple')" title="Purple"><span class="tk" style="color:#fff">✓</span></div>
+            <div class="thc" id="th-green" style="background:linear-gradient(135deg,#22c55e,#16a34a)" onclick="setTheme('green')" title="Green"><span class="tk" style="color:#fff">✓</span></div>
+          </div>
+          <p style="font-size:12px;color:var(--sub)">Theme saved per user.</p>
+        </div>
+        <div class="sec" style="margin-top:0">
+          <h3>🔐 Change Password</h3>
+          <div style="max-width:280px">
+            <input class="inp" id="cpO" type="password" placeholder="Current password">
+            <input class="inp" id="cpN" type="password" placeholder="New password">
+            <input class="inp" id="cpN2" type="password" placeholder="Confirm new password">
+            <div class="etxt" id="cpE"></div>
+            <button class="ab" onclick="changePwd()" style="margin-bottom:0">Update Password</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="sidebar">
+    <div class="sbh">
+      <span class="sbh-title" id="curChatName" onclick="toggleChatList()" title="Click to see all chats">💬 New Chat</span>
+      <button class="sbh-btn grey" onclick="toggleChatList()" title="All chats">☰</button>
+      <button class="sbh-btn" onclick="newChat()" title="New chat">✏️</button>
+    </div>
+    <div class="chat-list hidden" id="chatList"></div>
+    <div class="msgs" id="msgs"></div>
+    <div class="sbf">
+      <input type="text" id="cIn" placeholder="Ask anything — study, exams, concepts..." onkeypress="if(event.key==='Enter')sendMsg()">
+      <button onclick="sendMsg()">→</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer">🎬 <a href="https://www.youtube.com/@ChattyChop" target="_blank">YT ChattyChop</a><br>Creator: <b>G. Badrinath</b></div>
+
+<script>
+const AVS=['🎓','📖','🧠','⚡','🔬','🏆','🎯','🌟','🦁','🐯'];
+// ---- CLEAN OLD DATA FROM PREVIOUS VERSIONS ----
+['ei_users','ei_v2','ei3'].forEach(k=>{
+  const old=localStorage.getItem(k);
+  if(old && k!=='examIntelFinal'){
+    // migrate only if no new data exists yet
+    if(!localStorage.getItem('examIntelFinal') && k==='ei3'){
+      try{
+        const parsed=JSON.parse(old);
+        if(parsed.length){
+          // deduplicate by name before migrating
+          const seen=new Set();
+          const deduped=parsed.filter(u=>{
+            if(seen.has(u.name)) return false;
+            seen.add(u.name);
+            return true;
+          });
+          localStorage.setItem('examIntelFinal',JSON.stringify(deduped));
+        }
+      }catch(e){}
+    }
+    localStorage.removeItem(k);
+  }
+});
+
+let users=JSON.parse(localStorage.getItem('examIntelFinal')||'[]');
+let cur=null,pendId=null,papers=[];
+
+// ---- SAVE ----
+function saveAll(){
+  const idx=users.findIndex(u=>u.id===cur.id);
+  if(idx>=0) users[idx]=cur;
+  localStorage.setItem('examIntelFinal',JSON.stringify(users));
+}
+
+// ---- BOOT ----
+window.onload=function(){
+  buildVault(); buildPYQ(); setupTabs();
+  showPick(); // always start at pick screen
+};
+
+// ---- SCREENS ----
+function sh(id){
+  ['sA','sB','sC'].forEach(s=>document.getElementById(s).classList.add('off'));
+  document.getElementById(id).classList.remove('off');
+}
+
+function showPick(){
+  sh('sA');
+  document.getElementById('app').style.display='none';
+  document.getElementById('app').classList.remove('on');
+  document.getElementById('vPick').style.display='block';
+  document.getElementById('vCreate').style.display='none';
+
+  const g=document.getElementById('upick');
+  // render user cards + a "+" add card at the end
+  const cards=users.map((u,i)=>`
+    <div class="upc" onclick="pickUser(${u.id})">
+      <div class="av">${u.avatar||AVS[i%AVS.length]}</div>
+      <div class="un">${u.name}</div>
+    </div>`).join('');
+  const addCard=`
+    <div class="upc" onclick="showCreate()" style="border:2px dashed #ccc;color:#999">
+      <div class="av">➕</div>
+      <div class="un" style="color:#999">Add User</div>
+    </div>`;
+  g.innerHTML = cards + addCard;
+
+  if(!users.length){
+    document.getElementById('pickSub').textContent='No accounts yet — create one!';
+  } else {
+    document.getElementById('pickSub').textContent="Who's studying today?";
+  }
+}
+
+function showCreate(){
+  document.getElementById('vPick').style.display='none';
+  document.getElementById('vCreate').style.display='block';
+  document.getElementById('cn').value='';
+  document.getElementById('cp').value='';
+  document.getElementById('cp2').value='';
+  document.getElementById('ce').textContent='';
+  setTimeout(()=>document.getElementById('cn').focus(),80);
+}
+
+function doCreate(){
+  const n=document.getElementById('cn').value.trim();
+  const p=document.getElementById('cp').value;
+  const p2=document.getElementById('cp2').value;
+  const e=document.getElementById('ce');
+  if(!n){e.textContent='❌ Enter your name';return;}
+  if(p.length<4){e.textContent='❌ Password must be at least 4 characters';return;}
+  if(p!==p2){e.textContent='❌ Passwords do not match';return;}
+  // check for duplicate name
+  if(users.find(u=>u.name.toLowerCase()===n.toLowerCase())){e.textContent='❌ A user with that name already exists';return;}
+  const u={id:Date.now(),name:n,pass:p,avatar:AVS[users.length%AVS.length],api:'',todos:[],theme:'light',profile:null,chatH:[]};
+  users.push(u);
+  localStorage.setItem('examIntelFinal',JSON.stringify(users));
+  cur=u;
+  sh('sC');
+  setTimeout(()=>document.getElementById('prCl').focus(),80);
+}
+
+function pickUser(id){
+  pendId=id;
+  const u=users.find(x=>x.id===id);
+  document.getElementById('pAv').textContent=u.avatar||'👤';
+  document.getElementById('pNm').textContent=u.name;
+  document.getElementById('pi').value='';
+  document.getElementById('pe').textContent='';
+  sh('sB');
+  setTimeout(()=>document.getElementById('pi').focus(),80);
+}
+
+document.addEventListener('keypress',function(e){
+  if(e.key==='Enter'){
+    if(!document.getElementById('sB').classList.contains('off'))checkPwd();
+    else if(!document.getElementById('swM').classList.contains('off'))doSwitch();
+  }
+});
+
+function checkPwd(){
+  const u=users.find(x=>x.id===pendId);
+  const v=document.getElementById('pi').value;
+  if(v===u.pass){
+    cur=u;
+    // only show profile form if profile was never filled (null)
+    if(!cur.profile){
+      sh('sC');
+    } else {
+      enterApp();
+    }
+  } else {
+    document.getElementById('pe').textContent='❌ Wrong password';
+    document.getElementById('pi').value='';
+    document.getElementById('pi').focus();
+  }
+}
+
+function backPick(){sh('sA');showPick();}
+
+function saveProf(){
+  cur.profile={
+    cl:document.getElementById('prCl').value,
+    inst:document.getElementById('prIn').value,
+    exam:document.getElementById('prEx').value
+  };
+  saveAll();
+  enterApp();
+}
+
+function skipProf(){
+  // save empty profile so form never shows again
+  cur.profile={cl:'',inst:'',exam:''};
+  saveAll();
+  enterApp();
+}
+
+function enterApp(){
+  ['sA','sB','sC'].forEach(s=>document.getElementById(s).classList.add('off'));
+  document.getElementById('swM').classList.add('off');
+  document.getElementById('app').style.display='grid';
+  document.getElementById('app').classList.add('on');
+  applyTheme(cur.theme||'light');
+  renderAll();
+  loadChatUI();
+}
+
+function renderAll(){
+  document.getElementById('hName').textContent=cur.name;
+  document.getElementById('apiI').value=cur.api||'';
+  const sel=document.getElementById('uSel');
+  sel.innerHTML='<option value="">Switch User</option>'+users.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+  // restore saved profile fields
+  const p=cur.profile||{};
+  document.getElementById('eClass').value=p.cl||'';
+  document.getElementById('eInst').value=p.inst||'';
+  const ex=document.getElementById('eExam');
+  [...ex.options].forEach(o=>{o.selected=(o.value&&o.value===p.exam);});
+  document.getElementById('sbSub').textContent=p.exam?`${p.exam} coach — ask anything`:'Ask about your exam only';
+  renderTodos();renderUserGrid();
+  document.querySelectorAll('.thc').forEach(c=>c.classList.remove('on'));
+  const thEl=document.getElementById('th-'+(cur.theme||'light'));
+  if(thEl)thEl.classList.add('on');
+}
+
+function updProf(){
+  if(!cur.profile)cur.profile={};
+  cur.profile.cl=document.getElementById('eClass').value;
+  cur.profile.inst=document.getElementById('eInst').value;
+  cur.profile.exam=document.getElementById('eExam').value;
+  saveAll();
+  document.getElementById('sbSub').textContent=cur.profile.exam?`${cur.profile.exam} coach — ask anything`:'Ask about your exam only';
+}
+
+// ---- SWITCH USER ----
+function reqSwitch(id){
+  if(!id)return;document.getElementById('uSel').value='';
+  const uid=parseInt(id);if(uid===cur.id)return;
+  pendId=uid;const u=users.find(x=>x.id===uid);
+  document.getElementById('swT').textContent='Switch to '+u.name;
+  document.getElementById('swS').textContent="Enter "+u.name+"'s password";
+  document.getElementById('swP').value='';document.getElementById('swE').textContent='';
+  document.getElementById('swM').classList.remove('off');
+  setTimeout(()=>document.getElementById('swP').focus(),80);
+}
+function doSwitch(){
+  const u=users.find(x=>x.id===pendId),v=document.getElementById('swP').value;
+  if(v===u.pass){
+    cur=u;
+    document.getElementById('swM').classList.add('off');
+    applyTheme(cur.theme||'light');
+    renderAll();
+    loadChatUI();
+  } else {
+    document.getElementById('swE').textContent='❌ Wrong password';
+    document.getElementById('swP').value='';
+  }
+}
+function cancelSw(){document.getElementById('swM').classList.add('off');pendId=null;}
+function doLogout(){if(confirm('Log out?')){cur=null;document.getElementById('app').style.display='none';document.getElementById('app').classList.remove('on');applyTheme('light');showPick();}}
+
+// ---- TABS ----
+function setupTabs(){
+  document.querySelectorAll('.tbtn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
+      document.querySelectorAll('.pane,.fp').forEach(p=>p.classList.remove('on'));
+      this.classList.add('on');
+      const t=document.getElementById('tab-'+this.dataset.tab);
+      if(t)t.classList.add('on');
+    });
+  });
+}
+
+// ---- THEME ----
+function setTheme(n){applyTheme(n);cur.theme=n;saveAll();document.querySelectorAll('.thc').forEach(c=>c.classList.remove('on'));document.getElementById('th-'+n).classList.add('on');}
+function applyTheme(n){document.body.className=n==='light'?'':n;}
+
+// ---- API ----
+function saveApi(){cur.api=document.getElementById('apiI').value;saveAll();}
+async function testKey(){
+  const k=document.getElementById('apiI').value.trim(),s=document.getElementById('ks');
+  if(!k){s.style.color='#ff0';s.textContent='⚠️ No key entered!';return;}
+  s.style.color='#fff';s.textContent='⏳ Testing...';
+  try{
+    const r=await fetch('https://api.cohere.com/v2/chat',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'command-r-plus-08-2024',messages:[{role:'user',content:'Say OK'}]})});
+    const d=await r.json();
+    if(!r.ok){s.style.color='#ff4';s.textContent='❌ '+r.status+': '+(d.message||'Error');return;}
+    saveApi();s.style.color='#0f0';s.textContent='✅ Key works!';
+  }catch(e){s.style.color='#ff4';s.textContent='❌ '+e.message;}
+}
+
+// ---- FILES ----
+const dz=document.getElementById('dz'),fi=document.getElementById('fi');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='var(--accent)';});
+dz.addEventListener('dragleave',()=>{dz.style.borderColor='#aaa';});
+dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='#aaa';loadFiles(e.dataTransfer.files);});
+fi.addEventListener('change',e=>loadFiles(e.target.files));
+
+async function loadFiles(files){
+  if(typeof pdfjsLib==='undefined'){
+    await ldScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+  for(const f of files){
+    if(f.type==='application/pdf'){
+      const buf=await f.arrayBuffer();const doc=await pdfjsLib.getDocument({data:buf}).promise;
+      let txt='';
+      for(let i=1;i<=Math.min(doc.numPages,6);i++){const pg=await doc.getPage(i);const c=await pg.getTextContent();txt+=c.items.map(x=>x.str).join(' ')+'\n';}
+      papers.push({name:f.name,txt});renderFiles();
+    }
+  }
+}
+function renderFiles(){document.getElementById('fl').innerHTML=papers.map((p,i)=>`<div class="fi"><span>📄 ${p.name}</span><button class="xb" onclick="papers.splice(${i},1);renderFiles()">✕</button></div>`).join('');}
+
+// ---- PREDICT ----
+async function predict(){
+  const k=document.getElementById('apiI').value.trim();
+  if(!papers.length){alert('Upload at least one PDF first');return;}
+  if(!k){alert('Paste your Cohere API key in the red box');return;}
+  const btn=document.getElementById('pb');btn.disabled=true;btn.textContent='⏳ Analyzing...';
+  const po=document.getElementById('po');po.style.display='block';po.innerHTML='<p>Analyzing with AI...</p>';
+  const exam=cur.profile?.exam||'exam';
+  const combined=papers.map(p=>`=== ${p.name} ===\n${p.txt.substring(0,2500)}`).join('\n\n');
+  try{
+    const r=await fetch('https://api.cohere.com/v2/chat',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'command-r-plus-08-2024',messages:[{role:'user',content:`You are an expert ${exam} paper analyst helping ${cur.name} (${cur.profile?.cl||''} at ${cur.profile?.inst||''}).\n\nAnalyze these past papers carefully:\n\n${combined}\n\nGive a DETAILED prediction with:\n\n## 🎯 High Probability Topics\nList top 10 topics with estimated % chance of appearing.\n\n## 📝 Predicted Questions (IMPORTANT)\nWrite 8-10 actual likely questions based on patterns. These should be real question statements, not just topics.\n\n## 📊 Chapter-wise Weightage\nMarks distribution across chapters.\n\n## 🔮 Difficulty Prediction\nExpected easy / medium / hard split with reasoning.\n\n## ⚠️ Surprise Topics\nTopics overdue that may appear.\n\n## 💡 Last-Minute Focus Areas\nTop 5 things to revise in final week.`}]})});
+    const d=await r.json();if(!r.ok)throw new Error(d.message||'API Error '+r.status);
+    const txt=d.message.content[0].text;
+    if(typeof marked==='undefined')await ldScript('https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js');
+    po.innerHTML=marked.parse(txt);
+  }catch(e){po.innerHTML='❌ '+e.message;console.error(e);}
+  finally{btn.disabled=false;btn.textContent='🚀 Predict Paper + Likely Questions';}
+}
+
+// ---- TODO ----
+function addTodo(){
+  const t=document.getElementById('tIn').value.trim(),p=document.getElementById('tPr').value;
+  if(!t)return;
+  if(!cur.todos)cur.todos=[];
+  cur.todos.push({t,done:false,prio:p,d:new Date().toLocaleDateString('en-IN')});
+  saveAll();document.getElementById('tIn').value='';renderTodos();
+}
+document.getElementById('tIn').onkeypress=e=>{if(e.key==='Enter')addTodo();};
+
+function renderTodos(){
+  if(!cur)return;
+  const todos=cur.todos||[];
+  const fl=document.getElementById('tFl')?.value||'all';
+  const shown=todos.filter(t=>fl==='all'?true:fl==='done'?t.done:!t.done);
+  const dn=todos.filter(t=>t.done).length;
+  document.getElementById('tStats').innerHTML=`<b>${todos.length}</b> total &nbsp;•&nbsp; <b style="color:var(--accent)">${todos.length-dn}</b> pending &nbsp;•&nbsp; <b style="color:#22c55e">${dn}</b> done`;
+  const pc={high:'#ef4444',med:'#f59e0b',low:'#22c55e',normal:'transparent'};
+  const pl={high:'High',med:'Medium',low:'Low',normal:''};
+  document.getElementById('tList').innerHTML=shown.map(t=>{
+    const i=todos.indexOf(t);
+    return `<div class="ti">
+      <input type="checkbox" ${t.done?'checked':''} onchange="togTodo(${i})">
+      ${t.prio&&t.prio!=='normal'?`<span class="ptag" style="background:${pc[t.prio]}">${pl[t.prio]}</span>`:''}
+      <span class="${t.done?'dn':''}">${t.t}</span>
+      <span style="font-size:10px;color:var(--sub);margin-left:auto;margin-right:8px">${t.d||''}</span>
+      <button class="xb" onclick="delTodo(${i})">×</button>
+    </div>`;
+  }).join('')||'<p style="font-size:12px;color:var(--sub);text-align:center;padding:20px">No tasks! Add one above.</p>';
+}
+function togTodo(i){cur.todos[i].done=!cur.todos[i].done;saveAll();renderTodos();}
+function delTodo(i){cur.todos.splice(i,1);saveAll();renderTodos();}
+
+// ---- VAULT ----
+const EXAMS=[
+  {n:'JEE Main',i:'⚡',c:'Engineering',u:'https://jeemain.nta.nic.in'},
+  {n:'JEE Advanced',i:'🔥',c:'Engineering',u:'https://jeeadv.ac.in'},
+  {n:'BITSAT',i:'💻',c:'Engineering',u:'https://www.bitsadmission.com'},
+  {n:'VITEEE',i:'🏫',c:'Engineering',u:'https://viteee.vit.ac.in'},
+  {n:'SRMJEEE',i:'📐',c:'Engineering',u:'https://www.srmist.edu.in'},
+  {n:'MHT CET',i:'🌏',c:'Engineering',u:'https://cetcell.mahacet.org'},
+  {n:'KCET',i:'📌',c:'Engineering',u:'https://cetonline.karnataka.gov.in'},
+  {n:'COMEDK',i:'🏗',c:'Engineering',u:'https://www.comedk.org'},
+  {n:'AP EAMCET',i:'🔷',c:'Engineering',u:'https://sche.ap.gov.in'},
+  {n:'TS EAMCET',i:'🔶',c:'Engineering',u:'https://tseamcet.nic.in'},
+  {n:'WBJEE',i:'🌊',c:'Engineering',u:'https://wbjeeb.nic.in'},
+  {n:'KEAM',i:'🌴',c:'Engineering',u:'https://cee.kerala.gov.in'},
+  {n:'NEET UG',i:'🧬',c:'Medical',u:'https://neet.nta.nic.in'},
+  {n:'NEET PG',i:'🏥',c:'Medical',u:'https://nbe.edu.in'},
+  {n:'AIAPGET',i:'🌿',c:'Medical',u:'https://aiapget.nta.nic.in'},
+  {n:'CAT',i:'📈',c:'Management',u:'https://iimcat.ac.in'},
+  {n:'XAT',i:'📊',c:'Management',u:'https://xatonline.in'},
+  {n:'MAT',i:'📋',c:'Management',u:'https://mat.aima.in'},
+  {n:'CMAT',i:'📎',c:'Management',u:'https://cmat.nta.nic.in'},
+  {n:'SNAP',i:'📷',c:'Management',u:'https://www.snaptest.org'},
+  {n:'NMAT',i:'🏢',c:'Management',u:'https://www.nmat.org'},
+  {n:'IIFT',i:'🌐',c:'Management',u:'https://iift.nta.nic.in'},
+  {n:'TISSNET',i:'🏛',c:'Management',u:'https://admissions.tiss.edu'},
+  {n:'UPSC CSE',i:'⚖️',c:'Civil Services',u:'https://upsc.gov.in'},
+  {n:'UPSC CDS',i:'🎖',c:'Civil Services',u:'https://upsc.gov.in'},
+  {n:'UPPSC',i:'🏛',c:'Civil Services',u:'https://uppsc.up.nic.in'},
+  {n:'TNPSC',i:'🌴',c:'Civil Services',u:'https://www.tnpsc.gov.in'},
+  {n:'KPSC',i:'🌳',c:'Civil Services',u:'https://kpsc.kar.nic.in'},
+  {n:'MPSC',i:'🗺',c:'Civil Services',u:'https://mpsc.gov.in'},
+  {n:'BPSC',i:'🌾',c:'Civil Services',u:'https://bpsc.bih.nic.in'},
+  {n:'IBPS PO',i:'🏦',c:'Banking',u:'https://www.ibps.in'},
+  {n:'IBPS Clerk',i:'📂',c:'Banking',u:'https://www.ibps.in'},
+  {n:'SBI PO',i:'🏧',c:'Banking',u:'https://sbi.co.in/careers'},
+  {n:'SBI Clerk',i:'💳',c:'Banking',u:'https://sbi.co.in/careers'},
+  {n:'RBI Grade B',i:'🏛',c:'Banking',u:'https://www.rbi.org.in'},
+  {n:'NABARD',i:'🌾',c:'Banking',u:'https://www.nabard.org'},
+  {n:'SSC CGL',i:'🏛️',c:'SSC',u:'https://ssc.nic.in'},
+  {n:'SSC CHSL',i:'📝',c:'SSC',u:'https://ssc.nic.in'},
+  {n:'SSC MTS',i:'📮',c:'SSC',u:'https://ssc.nic.in'},
+  {n:'SSC JE',i:'⚙️',c:'SSC',u:'https://ssc.nic.in'},
+  {n:'SSC GD',i:'🛡',c:'SSC',u:'https://ssc.nic.in'},
+  {n:'SSC CPO',i:'👮',c:'SSC',u:'https://ssc.nic.in'},
+  {n:'RRB NTPC',i:'🚆',c:'Railway',u:'https://indianrailways.gov.in'},
+  {n:'RRB Group D',i:'🛤',c:'Railway',u:'https://indianrailways.gov.in'},
+  {n:'RRB ALP',i:'🚇',c:'Railway',u:'https://indianrailways.gov.in'},
+  {n:'NDA',i:'🎖️',c:'Defence',u:'https://upsc.gov.in'},
+  {n:'CDS',i:'🪖',c:'Defence',u:'https://upsc.gov.in'},
+  {n:'AFCAT',i:'✈️',c:'Defence',u:'https://afcat.cdac.in'},
+  {n:'Agniveer Army',i:'🔱',c:'Defence',u:'https://joinindianarmy.nic.in'},
+  {n:'Agniveer Navy',i:'⚓',c:'Defence',u:'https://www.joinindiannavy.gov.in'},
+  {n:'Agniveer AF',i:'🛩',c:'Defence',u:'https://agnipathvayu.cdac.in'},
+  {n:'CLAT',i:'⚖️',c:'Law',u:'https://consortiumofnlus.ac.in'},
+  {n:'AILET',i:'🏛',c:'Law',u:'https://nludelhi.ac.in'},
+  {n:'SLAT',i:'📜',c:'Law',u:'https://www.symlaw.ac.in'},
+  {n:'DU LLB',i:'🔏',c:'Law',u:'https://law.du.ac.in'},
+  {n:'IPMAT IIM-A',i:'🌟',c:'Integrated',u:'https://ipmat.iima.ac.in'},
+  {n:'IPMAT IIM-I',i:'✨',c:'Integrated',u:'https://ipmat.iimidr.ac.in'},
+  {n:'JIPMAT',i:'📐',c:'Integrated',u:'https://jipmat.nta.ac.in'},
+  {n:'DU JAT',i:'🎓',c:'Integrated',u:'https://du.ac.in'},
+  {n:'SET',i:'📚',c:'Integrated',u:'https://www.set-test.org'},
+  {n:'GATE',i:'🔬',c:'PG Entrance',u:'https://gate2025.iitr.ac.in'},
+  {n:'CSIR NET',i:'🧪',c:'PG Entrance',u:'https://csirnet.nta.nic.in'},
+  {n:'UGC NET',i:'🎓',c:'PG Entrance',u:'https://ugcnet.nta.nic.in'},
+  {n:'JEST',i:'🔭',c:'PG Entrance',u:'http://www.jest.org.in'},
+  {n:'IIT JAM',i:'📐',c:'PG Entrance',u:'https://jam.iitd.ac.in'},
+  {n:'NATA',i:'🏗',c:'Design/Arch',u:'https://www.nata.in'},
+  {n:'NID',i:'🎨',c:'Design/Arch',u:'https://admissions.nid.edu'},
+  {n:'NIFT',i:'👗',c:'Design/Arch',u:'https://admissions.nift.ac.in'},
+  {n:'CEED',i:'✏️',c:'Design/Arch',u:'https://ceed.iitb.ac.in'},
+  {n:'UCEED',i:'🖌',c:'Design/Arch',u:'https://uceed.iitb.ac.in'},
+  {n:'CUET UG',i:'🎓',c:'Others',u:'https://cuet.samarth.ac.in'},
+  {n:'CUET PG',i:'📗',c:'Others',u:'https://cuet.nta.nic.in'},
+  {n:'NCHM JEE',i:'🍽',c:'Others',u:'https://nchmjee.nta.nic.in'},
+  {n:'AIEED',i:'🏠',c:'Others',u:'https://www.aieed.com'},
+];
+
+function buildVault(){
+  const cats=[...new Set(EXAMS.map(e=>e.c))];
+  let html='';
+  cats.forEach(cat=>{
+    const list=EXAMS.filter(e=>e.c===cat);
+    const s=list.slice(0,6),m=list.slice(6);
+    const cid=cat.replace(/[\s/]/g,'-');
+    html+=`<div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:800;color:var(--sub);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase">${cat}</div>
+      <div class="eg">${s.map(e=>`<a class="ec" href="${e.u}" target="_blank"><div class="ei">${e.i}</div><div class="en">${e.n}</div><div class="ecat">${e.c}</div></a>`).join('')}</div>
+      ${m.length?`<div id="mx-${cid}" style="display:none"><div class="eg">${m.map(e=>`<a class="ec" href="${e.u}" target="_blank"><div class="ei">${e.i}</div><div class="en">${e.n}</div><div class="ecat">${e.c}</div></a>`).join('')}</div></div>
+      <button class="smb" style="margin-bottom:8px" onclick="togMore('${cid}',this)">+ Show ${m.length} More</button>`:''}
+    </div>`;
+  });
+  document.getElementById('vaultContent').innerHTML=html;
+}
+
+function togMore(id,btn){
+  const el=document.getElementById('mx-'+id);
+  if(el.style.display==='none'){el.style.display='block';btn.textContent='− Show Less';}
+  else{el.style.display='none';btn.textContent=btn.textContent.replace('Show Less',`Show More`);}
+}
+
+// ---- PYQ ----
+const PYQ=[
+  {n:'JEE Main',yrs:'2024 • 2023 • 2022 • 2021 • 2020',ls:[{l:'NTA Official',u:'https://jeemain.nta.nic.in'},{l:'Allen PYQ',u:'https://www.allen.ac.in/apps/student/PYP_JEE.aspx'},{l:'Resonance',u:'https://www.resonance.ac.in/jee-main-question-paper.aspx'}]},
+  {n:'JEE Advanced',yrs:'2024 • 2023 • 2022 • 2021',ls:[{l:'Official PYQ',u:'https://jeeadv.ac.in/pastqps.html'},{l:'Allen',u:'https://www.allen.ac.in/apps/student/PYP_JEE_ADV.aspx'}]},
+  {n:'NEET UG',yrs:'2024 • 2023 • 2022 • 2021 • 2020',ls:[{l:'NTA Official',u:'https://neet.nta.nic.in'},{l:'Allen NEET',u:'https://www.allen.ac.in/apps/student/PYP_NEET.aspx'},{l:'Aakash',u:'https://www.aakash.ac.in/neet-previous-year-papers'}]},
+  {n:'UPSC CSE',yrs:'2024 • 2023 • 2022 • 2021',ls:[{l:'UPSC Official',u:'https://upsc.gov.in/examinations/previous-question-papers'},{l:'IAS Baba',u:'https://iasbaba.com/previous-year-papers/'},{l:'Vision IAS',u:'https://visionias.in/resources/previous_year_papers.php'}]},
+  {n:'CAT',yrs:'2023 • 2022 • 2021 • 2020',ls:[{l:'2IIM PYQ',u:'https://www.2iim.com/cat-previous-year-papers.shtml'},{l:'TestFunda',u:'https://testfunda.com/CAT/PreviousPapers.aspx'},{l:'iQuanta',u:'https://iquanta.in/cat-previous-year-papers'}]},
+  {n:'GATE',yrs:'2024 • 2023 • 2022 • 2021',ls:[{l:'GATE Official',u:'https://gate2025.iitr.ac.in/PreviousYearQPs.html'},{l:'MADE EASY',u:'https://www.madeeasy.in/resources/gate-previous-year-papers.php'}]},
+  {n:'SSC CGL',yrs:'2024 • 2023 • 2022 • 2021',ls:[{l:'SSC Official',u:'https://ssc.nic.in'},{l:'SSC Adda247',u:'https://www.adda247.com/ssc-cgl-previous-year-papers/'}]},
+  {n:'CLAT',yrs:'2024 • 2023 • 2022 • 2021',ls:[{l:'CLAT Consortium',u:'https://consortiumofnlus.ac.in'},{l:'LegalEdge',u:'https://legaledge.in/clat-previous-year-papers/'}]},
+  {n:'IPMAT',yrs:'2024 • 2023 • 2022',ls:[{l:'IIM Indore',u:'https://www.iimidr.ac.in/academic-programmes/five-year-ipmat/admissions/'},{l:'Career Launcher',u:'https://www.careerlauncher.com/ipmat/question-paper.html'}]},
+  {n:'NDA',yrs:'2024 • 2023 • 2022',ls:[{l:'UPSC Official',u:'https://upsc.gov.in/examinations/previous-question-papers'},{l:'Jagran Josh',u:'https://www.jagranjosh.com/articles/nda-previous-year-papers'}]},
+  {n:'IBPS PO',yrs:'2023 • 2022 • 2021',ls:[{l:'IBPS Official',u:'https://www.ibps.in'},{l:'Oliveboard',u:'https://www.oliveboard.in/ibps-po-previous-year-papers/'}]},
+  {n:'CUET UG',yrs:'2024 • 2023 • 2022',ls:[{l:'NTA Official',u:'https://cuet.samarth.ac.in'},{l:'Careers360',u:'https://school.careers360.com/articles/cuet-question-paper'}]},
+  {n:'BITSAT',yrs:'2024 • 2023 • 2022',ls:[{l:'BITS Official',u:'https://www.bitsadmission.com'},{l:'Embibe',u:'https://www.embibe.com/exams/bitsat-previous-year-question-papers/'}]},
+];
+function buildPYQ(){
+  document.getElementById('pyqC').innerHTML=PYQ.map(p=>`
+    <div class="pyq">
+      <div><div class="pn">${p.n}</div><div class="py">${p.yrs}</div></div>
+      <div class="pyqls">${p.ls.map(l=>`<a href="${l.u}" target="_blank">${l.l}</a>`).join('')}</div>
+    </div>`).join('');
+}
+
+// ---- NEWS ----
+async function getNews(){
+  const k=document.getElementById('apiI').value.trim();
+  if(!k){alert('Paste API key first');return;}
+  const out=document.getElementById('newsOut');
+  out.innerHTML='<p style="font-size:12px;color:var(--sub)">Loading latest news...</p>';
+  const exam=cur.profile?.exam||'exams';
+  try{
+    const r=await fetch('https://api.cohere.com/v2/chat',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'command-r-plus-08-2024',messages:[{role:'user',content:`Generate 8 realistic detailed exam news items for India 2025, focusing on ${exam} and related exams.\nFormat EACH item EXACTLY like:\nTAG: [exam name]\nHEADLINE: [short punchy headline]\nDESC: [2 sentence description with specific details]\nDATE: [realistic 2025 date]\n---`}]})});
+    const d=await r.json();if(!r.ok)throw new Error(d.message||'Error');
+    const items=d.message.content[0].text.split('---').filter(s=>s.trim());
+    out.innerHTML=items.slice(0,8).map(item=>{
+      const tag=(item.match(/TAG:\s*(.+)/)||['','NEWS'])[1].trim();
+      const hl=(item.match(/HEADLINE:\s*(.+)/)||['','Update'])[1].trim();
+      const desc=(item.match(/DESC:\s*([\s\S]+?)(?=DATE:|$)/)||['',''])[1].trim();
+      const date=(item.match(/DATE:\s*(.+)/)||['','2025'])[1].trim();
+      return `<div class="nc"><div class="ntag">${tag}</div><div class="ntit">${hl}</div><div class="ndesc">${desc}</div><div class="ndate">📅 ${date}</div></div>`;
+    }).join('');
+  }catch(e){out.innerHTML='<p style="color:red;font-size:12px">❌ '+e.message+'</p>';}
+}
+
+// ---- CHAT SESSIONS ----
+// cur.chats = [{id, name, msgs:[{t,tp}]}]
+// cur.activeChatId = id of current chat
+
+function initChats(){
+  if(!cur.chats||!cur.chats.length){
+    cur.chats=[{id:Date.now(),name:'Chat 1',msgs:[]}];
+    cur.activeChatId=cur.chats[0].id;
+    saveAll();
+  }
+  if(!cur.activeChatId) cur.activeChatId=cur.chats[0].id;
+}
+
+function getActiveChat(){
+  return cur.chats.find(c=>c.id===cur.activeChatId)||cur.chats[0];
+}
+
+function loadChatUI(){
+  initChats();
+  const chat=getActiveChat();
+  document.getElementById('curChatName').textContent='💬 '+chat.name;
+  const msgBox=document.getElementById('msgs');
+  msgBox.innerHTML='';
+  if(!chat.msgs.length){
+    renderMsg(`Hey ${cur.name}! 👋 Ask me anything — study questions, exam tips, concepts, or just chat!`,'b');
+  } else {
+    chat.msgs.forEach(m=>renderMsg(m.t,m.tp));
+  }
+  msgBox.scrollTop=99999;
+  renderChatList();
+}
+
+function renderChatList(){
+  initChats();
+  const el=document.getElementById('chatList');
+  el.innerHTML=cur.chats.map(c=>`
+    <div class="cli ${c.id===cur.activeChatId?'active':''}" onclick="switchChat(${c.id})">
+      <span class="cli-name" ondblclick="renameChat(${c.id},this)">💬 ${c.name}</span>
+      <button class="cli-del" onclick="deleteChat(${c.id});event.stopPropagation()">🗑</button>
+    </div>
+  `).join('');
+}
+
+function toggleChatList(){
+  const el=document.getElementById('chatList');
+  el.classList.toggle('hidden');
+}
+
+function newChat(){
+  initChats();
+  const n=cur.chats.length+1;
+  const chat={id:Date.now(),name:'Chat '+n,msgs:[]};
+  cur.chats.push(chat);
+  cur.activeChatId=chat.id;
+  saveAll();
+  document.getElementById('chatList').classList.add('hidden');
+  loadChatUI();
+}
+
+function switchChat(id){
+  cur.activeChatId=id;
+  saveAll();
+  document.getElementById('chatList').classList.add('hidden');
+  loadChatUI();
+}
+
+function deleteChat(id){
+  if(cur.chats.length<=1){alert("Can't delete the only chat!");return;}
+  if(!confirm('Delete this chat?'))return;
+  cur.chats=cur.chats.filter(c=>c.id!==id);
+  if(cur.activeChatId===id) cur.activeChatId=cur.chats[cur.chats.length-1].id;
+  saveAll();
+  renderChatList();
+  loadChatUI();
+}
+
+function renameChat(id,el){
+  const cur2=el.textContent.replace('💬 ','').trim();
+  const newName=prompt('Rename chat:',cur2);
+  if(!newName||!newName.trim())return;
+  const chat=cur.chats.find(c=>c.id===id);
+  if(chat){chat.name=newName.trim();saveAll();loadChatUI();}
+}
+
+// ---- CHAT SEND ----
+async function sendMsg(){
+  const txt=document.getElementById('cIn').value.trim();
+  if(!txt)return;
+  addMsg(txt,'u');
+  document.getElementById('cIn').value='';
+  const k=document.getElementById('apiI').value.trim();
+  if(!k){addMsg('⚠️ Paste your Cohere API key first!','b');return;}
+
+  // auto-name chat from first message
+  const chat=getActiveChat();
+  if(chat.msgs.filter(m=>m.tp==='u').length===1){
+    chat.name=txt.length>30?txt.substring(0,30)+'…':txt;
+    saveAll();
+    document.getElementById('curChatName').textContent='💬 '+chat.name;
+    renderChatList();
+  }
+
+  try{
+    const exam=cur.profile?.exam||'';
+    const history=chat.msgs.slice(-14).map(m=>({role:m.tp==='u'?'user':'assistant',content:m.t}));
+    const r=await fetch('https://api.cohere.com/v2/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+      body:JSON.stringify({
+        model:'command-r-plus-08-2024',
+        messages:[
+          {role:'system',content:`You are ${cur.name}'s smart friendly study assistant.${exam?' Their exam is '+exam+'.':''} ${cur.profile?.cl?' They are in '+cur.profile.cl+'.':''}\nAnswer ANY study question, explain concepts, solve problems, give exam tips, help with essays, or chat normally. Be warm, clear, and thorough with examples.`},
+          ...history,
+          {role:'user',content:txt}
+        ]
+      })
+    });
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.message||'Error '+r.status);
+    addMsg(d.message.content[0].text,'b');
+  }catch(e){addMsg('❌ '+e.message,'b');}
+}
+
+function renderMsg(t,tp){
+  const d=document.createElement('div');
+  d.className='msg '+tp;
+  d.textContent=t;
+  document.getElementById('msgs').appendChild(d);
+}
+
+function addMsg(t,tp){
+  renderMsg(t,tp);
+  document.getElementById('msgs').scrollTop=99999;
+  if(!cur)return;
+  initChats();
+  const chat=getActiveChat();
+  chat.msgs.push({t,tp});
+  if(chat.msgs.length>80)chat.msgs=chat.msgs.slice(-80);
+  saveAll();
+}
+
+
+// ---- USERS TAB ----
+function renderUserGrid(){
+  document.getElementById('ugrid').innerHTML=users.map((u,i)=>`
+    <div class="uc ${u.id===cur.id?'me':''}">
+      <div class="uav">${u.avatar||AVS[i%AVS.length]}</div>
+      <div class="unn">${u.name}</div>
+      <div class="uex">${u.profile?.exam||'No exam set'}</div>
+      <div class="ubr">
+        <button class="uuse" onclick="reqSwitch(${u.id})">Switch</button>
+        <button class="udel" onclick="delFromApp(${u.id})">Delete</button>
+      </div>
+    </div>`).join('');
+}
+function createFromApp(){
+  const n=document.getElementById('nuN').value.trim(),p=document.getElementById('nuP').value,p2=document.getElementById('nuP2').value;
+  if(!n||!p){alert('Fill all fields');return;}
+  if(p!==p2){alert('Passwords do not match');return;}
+  users.push({id:Date.now(),name:n,pass:p,avatar:AVS[users.length%AVS.length],api:'',todos:[],theme:'light',profile:null});
+  saveAll();document.getElementById('nuN').value='';document.getElementById('nuP').value='';document.getElementById('nuP2').value='';
+  renderUserGrid();
+  document.getElementById('uSel').innerHTML='<option value="">Switch User</option>'+users.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+  alert('✅ User "'+n+'" created!');
+}
+function delFromApp(id){
+  if(id===cur.id){alert("Can't delete yourself!");return;}
+  if(!confirm('Delete this user?'))return;
+  users=users.filter(u=>u.id!==id);saveAll();renderUserGrid();
+}
+
+// ---- CHANGE PASSWORD ----
+function changePwd(){
+  const o=document.getElementById('cpO').value,n=document.getElementById('cpN').value,n2=document.getElementById('cpN2').value,e=document.getElementById('cpE');
+  if(o!==cur.pass){e.textContent='❌ Current password wrong';return;}
+  if(n.length<4){e.textContent='❌ New password too short';return;}
+  if(n!==n2){e.textContent='❌ Passwords do not match';return;}
+  cur.pass=n;saveAll();
+  e.style.color='green';e.textContent='✅ Password updated!';
+  document.getElementById('cpO').value='';document.getElementById('cpN').value='';document.getElementById('cpN2').value='';
+  setTimeout(()=>{e.textContent='';e.style.color='red';},3000);
+}
+
+// ---- SAVE / UTILS ----
+function saveAll(){
+  const idx=users.findIndex(u=>u.id===cur.id);
+  if(idx>=0)users[idx]=cur;
+  localStorage.setItem('examIntelFinal',JSON.stringify(users));
+}
+function ldScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+</script>
+</body>
+</html>
