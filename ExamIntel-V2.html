@@ -1,0 +1,2614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExamIntel Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;font-family:'Poppins',sans-serif}
+body{--bg:#f8f9fa;--card:#fff;--border:#eee;--text:#1a1a1a;--sub:#888;--accent:#667eea;--accent2:#764ba2;background:var(--bg);color:var(--text)}
+body.dark{--bg:#0d0f1a;--card:#1a1f3a;--border:#2a3050;--text:#e0e0e0;--sub:#666}
+body.green{--bg:#f0fff4;--card:#fff;--border:#c6f6d5;--accent:#22c55e;--accent2:#16a34a}
+body.purple{--bg:#faf5ff;--card:#fff;--border:#e9d5ff;--accent:#9333ea;--accent2:#7e22ce}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#ccc;border-radius:4px}
+body.dark ::-webkit-scrollbar-thumb{background:#444}
+
+/* SCREENS */
+.screen{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:9999;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.screen.off{display:none!important}
+.box{background:#fff;border-radius:20px;padding:48px 44px;width:90%;max-width:480px;box-shadow:0 30px 80px rgba(0,0,0,.35);text-align:center}
+.box h1{font-size:42px;margin-bottom:10px}.box h2{font-size:22px;font-weight:800;color:#000;margin-bottom:6px}.box p{font-size:13px;color:#888;margin-bottom:26px}
+.inp{width:100%;padding:13px 16px;border:2px solid #ddd;border-radius:8px;font-size:13px;font-family:inherit;transition:.3s;margin-bottom:11px;background:#fff;color:#000}
+.inp:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 4px rgba(102,126,234,.1)}
+.inp.err{border-color:#f00}
+select.inp{cursor:pointer}
+.btn{width:100%;padding:14px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.3s;margin-top:4px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(102,126,234,.4)}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn.g{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.etxt{color:#f00;font-size:12px;font-weight:700;margin-bottom:8px;min-height:16px;text-align:left}
+.lnk{font-size:12px;color:#667eea;cursor:pointer;margin-top:14px;display:inline-block;text-decoration:underline}
+
+/* USER PICKER */
+.upick{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-bottom:18px;max-height:300px;overflow-y:auto}
+.upc{background:#f5f5f5;border:2px solid #ddd;border-radius:10px;padding:16px 10px;cursor:pointer;transition:.3s;text-align:center}
+.upc:hover{transform:translateY(-4px);border-color:#667eea;box-shadow:0 8px 20px rgba(102,126,234,.2)}
+.upc .av{font-size:30px;margin-bottom:6px}.upc .un{font-size:12px;font-weight:700;color:#000}
+
+/* APP */
+#app{display:none;width:100%;height:100vh;grid-template-columns:1fr 300px}
+#app.on{display:grid}
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--card);height:100vh}
+.header{background:var(--card);border-bottom:2px solid var(--border);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.logo{font-size:16px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hright{display:flex;gap:8px;align-items:center}
+.hbtn{padding:7px 12px;background:var(--bg);border:2px solid var(--border);border-radius:6px;cursor:pointer;font-weight:600;font-size:11px;color:var(--text);font-family:inherit}
+.hbtn:hover{border-color:var(--accent)}.hbtn.red{background:#f00;color:#fff;border-color:#f00}
+.tabs{display:flex;padding:0 16px;border-bottom:2px solid var(--border);background:var(--card);flex-shrink:0;overflow-x:auto}
+.tbtn{padding:11px 14px;background:none;border:none;cursor:pointer;font-weight:600;color:var(--sub);border-bottom:3px solid transparent;font-family:inherit;font-size:12px;white-space:nowrap;transition:.3s}
+.tbtn.on{color:var(--accent);border-bottom-color:var(--accent)}
+.body{flex:1;overflow-y:auto;padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:18px;min-height:0}
+.pane{display:none}.pane.on{display:contents}
+.fp{display:none;grid-column:1/-1}.fp.on{display:block}
+.sec{background:var(--card);border-radius:12px;padding:18px;border:2px solid var(--border);margin-bottom:16px}
+.sec h3{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--text)}
+
+/* API BANNER */
+.apib{background:#c00;color:#fff;padding:14px;border-radius:10px;margin-bottom:14px;border:2px solid #900}
+.apib label{display:block;font-weight:800;font-size:11px;margin-bottom:6px}
+.apib input{width:100%;padding:10px;border:none;border-radius:6px;font-family:monospace;font-size:11px;color:#000;margin-bottom:8px}
+.abtns{display:flex;gap:8px}.abtns button{flex:1;padding:8px;border:none;border-radius:6px;cursor:pointer;font-weight:800;font-size:11px;font-family:inherit}
+.absave{background:#000;color:#fff}.abtest{background:#fff;color:#c00}
+#ks{font-size:11px;font-weight:700;margin-top:6px;min-height:14px}
+
+/* PREDICTOR */
+.dz{border:2px dashed #aaa;border-radius:10px;padding:26px;text-align:center;cursor:pointer;background:var(--bg);margin-bottom:12px;transition:.3s}
+.dz:hover{border-color:var(--accent);background:#f0f0ff}
+body.dark .dz:hover{background:#1a2040}
+.fl{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;max-height:110px;overflow-y:auto}
+.fi{background:var(--bg);padding:7px 10px;border-radius:6px;font-size:11px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border)}
+.xb{background:#f00;color:#fff;border:none;padding:2px 7px;border-radius:3px;cursor:pointer;font-size:10px}
+.ab{width:100%;padding:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:8px;font-weight:800;cursor:pointer;margin-bottom:12px;font-family:inherit;font-size:13px;transition:.3s}
+.ab:hover{opacity:.9;transform:translateY(-1px)}.ab:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.po{background:var(--bg);padding:14px;border-radius:8px;font-size:12px;max-height:400px;overflow-y:auto;color:var(--text);line-height:1.7;border:1px solid var(--border)}
+.po h3,.po strong{color:var(--accent)}.po ul{margin-left:16px}.po p{margin-bottom:8px}
+
+/* TODO */
+.trow{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.trow input{flex:1;min-width:160px;padding:9px 12px;border:2px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--card);color:var(--text)}
+.trow input:focus{outline:none;border-color:var(--accent)}
+.trow button,.trow select{padding:9px 12px;border:2px solid var(--border);border-radius:8px;font-size:11px;font-family:inherit;cursor:pointer;background:var(--card);color:var(--text)}
+.trow button{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+.tlist{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto}
+.ti{display:flex;gap:10px;padding:10px 12px;background:var(--bg);border-radius:8px;align-items:center;font-size:12px;border:1px solid var(--border);transition:.3s}
+.ti:hover{border-color:var(--accent)}.ti input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--accent)}
+.ti span{flex:1;color:var(--text)}.ti span.dn{opacity:.5;text-decoration:line-through}
+.ptag{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;color:#fff;margin-right:4px}
+.tstats{font-size:11px;color:var(--sub);margin-bottom:10px;padding:8px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)}
+
+/* NEWS */
+.nc{background:var(--bg);border-radius:10px;padding:14px;margin-bottom:12px;border:1px solid var(--border);border-left:4px solid var(--accent);transition:.3s;cursor:pointer}
+.nc:hover{transform:translateX(4px)}
+.ntag{display:inline-block;padding:2px 8px;background:var(--accent);color:#fff;border-radius:20px;font-size:10px;font-weight:700;margin-bottom:6px}
+.ntit{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.ndesc{font-size:11px;color:var(--sub);line-height:1.5}.ndate{font-size:10px;color:var(--sub);margin-top:6px}
+
+/* EXAM VAULT */
+.eg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.ec{background:var(--bg);border:2px solid var(--border);border-radius:10px;padding:11px 7px;text-align:center;cursor:pointer;transition:.3s;text-decoration:none;display:block}
+.ec:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,.1)}
+.ec .ei{font-size:20px;margin-bottom:3px}.ec .en{font-size:10px;font-weight:700;color:var(--text)}.ec .ecat{font-size:9px;color:var(--sub)}
+.smb{width:100%;padding:8px;background:var(--bg);border:2px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-size:11px;color:var(--accent);font-family:inherit;transition:.3s}
+.smb:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* PYQ */
+.pyq{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.pyq .pn{font-size:12px;font-weight:700;color:var(--text)}.pyq .py{font-size:10px;color:var(--sub);margin-top:2px}
+.pyqls{display:flex;gap:6px;flex-wrap:wrap}
+.pyqls a{padding:4px 10px;background:var(--accent);color:#fff;border-radius:4px;font-size:10px;font-weight:700;text-decoration:none;transition:.3s}
+.pyqls a:hover{opacity:.8}
+
+/* USERS TAB */
+.ug{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+.uc{background:var(--bg);border:2px solid var(--border);border-radius:10px;padding:16px;text-align:center;transition:.3s}
+.uc.me{border-color:var(--accent);background:linear-gradient(135deg,rgba(102,126,234,.06),rgba(118,75,162,.06))}
+.uc .uav{font-size:28px;margin-bottom:6px}.uc .unn{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px}.uc .uex{font-size:10px;color:var(--sub)}
+.ubr{display:flex;gap:6px;margin-top:10px}
+.ubr button{flex:1;padding:6px;border:none;border-radius:4px;cursor:pointer;font-weight:700;font-size:10px;font-family:inherit}
+.uuse{background:var(--accent);color:#fff}.udel{background:#f00;color:#fff}
+.nuf{background:var(--bg);border:2px solid var(--border);border-radius:10px;padding:18px;max-width:300px}
+.nuf input{width:100%;padding:11px;border:2px solid var(--border);border-radius:8px;margin-bottom:10px;font-size:12px;font-family:inherit;background:var(--card);color:var(--text)}
+.nuf button{width:100%;padding:12px;background:#22c55e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:800;font-size:13px;font-family:inherit}
+
+/* SETTINGS */
+.thms{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.thc{width:56px;height:56px;border-radius:10px;cursor:pointer;border:3px solid transparent;transition:.3s;position:relative;display:flex;align-items:center;justify-content:center}
+.thc:hover{transform:scale(1.1)}.thc.on{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,255,255,.5)}
+.thc .tk{font-size:18px;display:none}.thc.on .tk{display:block}
+.pfield{margin-bottom:12px}.pfield label{display:block;font-size:11px;font-weight:700;margin-bottom:4px;color:var(--sub)}
+.pfield input,.pfield select{width:100%;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--card);color:var(--text)}
+
+/* SWITCH MODAL */
+.mbg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:8888;backdrop-filter:blur(4px)}
+.mbg.off{display:none!important}
+.mb{background:#fff;border-radius:16px;padding:34px;max-width:380px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.mb h3{font-size:18px;font-weight:800;margin-bottom:6px;color:#000}.mb p{font-size:12px;color:#888;margin-bottom:18px}
+
+/* SIDEBAR */
+.sidebar{background:var(--card);border-left:2px solid var(--border);display:flex;flex-direction:column;overflow:hidden;height:100%}
+.sbh{padding:10px 12px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.sbh-title{font-size:12px;font-weight:700;color:var(--text);flex:1;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sbh-title:hover{color:var(--accent)}
+.sbh-btn{padding:4px 8px;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700;font-family:inherit;background:var(--accent);color:#fff;white-space:nowrap}
+.sbh-btn.grey{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+.chat-list{background:var(--bg);border-bottom:2px solid var(--border);max-height:160px;overflow-y:auto;flex-shrink:0}
+.chat-list.hidden{display:none}
+.cli{padding:8px 12px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border);transition:.2s}
+.cli:hover{background:var(--border)}
+.cli.active{background:linear-gradient(135deg,rgba(102,126,234,.12),rgba(118,75,162,.08));font-weight:700;color:var(--accent)}
+.cli-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.cli.active .cli-name{color:var(--accent)}
+.cli-del{background:none;border:none;cursor:pointer;font-size:11px;color:#f00;padding:0 2px;opacity:0;transition:.2s}
+.cli:hover .cli-del{opacity:1}
+.msgs{flex:1;min-height:0;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+.msg{padding:9px 11px;border-radius:8px;font-size:12px;line-height:1.5;max-width:88%}
+.msg.u{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;margin-left:auto;border-radius:12px 4px 12px 12px}
+.msg.b{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:4px 12px 12px 12px}
+.sbf{padding:10px;border-top:2px solid var(--border);display:flex;gap:8px;background:var(--card);flex-shrink:0}
+.sbf input{flex:1;padding:9px;border:2px solid var(--border);border-radius:8px;font-size:11px;font-family:inherit;background:var(--bg);color:var(--text)}
+.sbf button{padding:9px 13px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:11px}
+
+/* CALCULATOR BUTTONS */
+.calc-wrap{background:#1c1c2e;border-radius:16px;padding:16px;max-width:320px;margin:0 auto;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.calc-display{background:#0f0f1e;border-radius:10px;padding:16px;margin-bottom:14px;min-height:80px;display:flex;flex-direction:column;justify-content:flex-end}
+.calc-expr{font-size:12px;color:#666;font-family:monospace;min-height:16px;text-align:right;word-break:break-all}
+.calc-result{font-size:36px;font-weight:800;color:#fff;font-family:monospace;text-align:right;word-break:break-all;line-height:1.2}
+.calc-sci-row{display:grid;gap:6px;margin-bottom:6px}
+.calc-sci-row.five{grid-template-columns:repeat(5,1fr)}
+.calc-num-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.cbtn{padding:0;height:58px;border:none;border-radius:12px;cursor:pointer;font-size:16px;font-weight:700;font-family:'Poppins',sans-serif;transition:.12s;width:100%;display:flex;align-items:center;justify-content:center}
+.cbtn:active{transform:scale(.92);filter:brightness(.8)}
+.cbtn.num{background:#2d2d44;color:#fff}
+.cbtn.num:hover{background:#3a3a56}
+.cbtn.op{background:#667eea;color:#fff;font-size:20px}
+.cbtn.op:hover{background:#5568d3}
+.cbtn.eq{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:22px}
+.cbtn.eq:hover{opacity:.9}
+.cbtn.ac{background:#4a4a62;color:#e0d0ff;font-size:14px}
+.cbtn.ac:hover{background:#5a5a76}
+.cbtn.sci{background:#232338;color:#99aaff;font-size:12px;height:44px;border-radius:8px}
+.cbtn.sci:hover{background:#2d2d4a;color:#fff}
+.cbtn.bk{background:#2d2d44;color:#ff9999;font-size:13px;height:44px;border-radius:8px;width:100%}
+.cbtn.bk:hover{background:#3d2d2d}
+.motiv-bar{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-shrink:0;flex-wrap:wrap}
+.motiv-quote{font-size:12px;font-weight:600;flex:1;opacity:.95}
+.countdown-chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.2);border-radius:8px;padding:6px 12px;text-align:center;min-width:70px;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.25)}
+.chip .num{font-size:18px;font-weight:800;display:block;line-height:1}
+.chip .lbl{font-size:9px;opacity:.85;text-transform:uppercase;letter-spacing:.5px}
+.chip.urgent{background:rgba(255,80,80,.4);border-color:rgba(255,80,80,.6)}
+.chip.exam-name{font-size:11px;font-weight:700;min-width:auto;padding:6px 14px;display:flex;align-items:center}
+
+/* ---- FORMATTED RESPONSE MODAL ---- */
+.fmodal-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:8000;backdrop-filter:blur(6px)}
+.fmodal-bg.off{display:none!important}
+.fmodal{background:#fff;border-radius:16px;width:90%;max-width:700px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.4);overflow:hidden}
+.fmodal-head{padding:18px 24px;border-bottom:2px solid #eee;display:flex;justify-content:space-between;align-items:center}
+.fmodal-head h3{font-size:16px;font-weight:800;color:#000}
+.fmodal-close{background:#f0f0f0;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.fmodal-body{flex:1;overflow-y:auto;padding:28px 32px;font-family:'Poppins',sans-serif;line-height:1.8;color:#222;font-size:14px}
+.fmodal-body h1,.fmodal-body h2{font-size:18px;font-weight:800;margin:20px 0 10px;color:#000}
+.fmodal-body h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:#333}
+.fmodal-body p{margin-bottom:12px}
+.fmodal-body ul,.fmodal-body ol{margin-left:20px;margin-bottom:12px}
+.fmodal-body li{margin-bottom:6px}
+.fmodal-body strong{color:#000;font-weight:700}
+.fmodal-body code{background:#f5f5f5;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px}
+.fmodal-body blockquote{border-left:4px solid #667eea;padding-left:16px;color:#555;margin:12px 0;font-style:italic}
+.read-more-btn{background:var(--accent);color:#fff;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:700;margin-top:6px;font-family:inherit}
+
+/* ---- BOOK VIEWER ---- */
+.book-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,8,20,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9000;backdrop-filter:blur(10px)}
+.book-bg.off{display:none!important}
+.book-header{color:#fff;font-size:16px;font-weight:800;margin-bottom:20px;text-align:center;letter-spacing:.5px}
+.book-scene{
+  position:relative;
+  width:min(560px,88vw);
+  height:min(440px,62vh);
+  perspective:2200px;
+}
+/* BOTTOM layer — shows next page underneath */
+.page-under{
+  position:absolute;inset:0;
+  background:#fffef4;
+  border-radius:3px 10px 10px 3px;
+  box-shadow:3px 3px 14px rgba(0,0,0,.35);
+  overflow:hidden;
+}
+/* TOP layer — the page that actually flips */
+.page-over{
+  position:absolute;inset:0;
+  background:#ffffff;
+  border-radius:3px 10px 10px 3px;
+  box-shadow:-1px 2px 10px rgba(0,0,0,.15), 3px 3px 14px rgba(0,0,0,.25);
+  transform-style:preserve-3d;
+  transform-origin:left center;
+  transition:transform .55s cubic-bezier(.4,0,.2,1);
+  cursor:pointer;
+  overflow:hidden;
+  will-change:transform;
+}
+/* Subtle paper edge gradient */
+.page-over::after{
+  content:'';position:absolute;top:0;right:0;bottom:0;width:18px;
+  background:linear-gradient(to right,transparent,rgba(0,0,0,.06));
+  pointer-events:none;
+}
+/* Flip animation — forward */
+.page-over.flip-fwd{transform:rotateY(-180deg)}
+/* Flip animation — backward (start already flipped, animate to 0) */
+.page-over.flip-bwd-start{transform:rotateY(-180deg);transition:none}
+.page-over.flip-bwd{transform:rotateY(0deg)}
+
+.pg-content{padding:28px 32px;height:100%;overflow-y:auto;font-family:'Poppins',sans-serif;color:#222;font-size:13px;line-height:1.75}
+.pg-content h2{font-size:15px;font-weight:800;margin-bottom:14px;color:#000;padding-bottom:8px;border-bottom:2px solid #667eea}
+.pg-content .qnum{font-size:10px;font-weight:700;color:#667eea;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px}
+.pg-content .qtext{font-size:13px;color:#222;line-height:1.7;margin-bottom:14px}
+.pg-content .alab{font-size:10px;font-weight:800;color:#22c55e;text-transform:uppercase;letter-spacing:1px;margin-top:14px;margin-bottom:4px}
+.pg-content .atext{font-size:12px;color:#333;background:#f6fff8;padding:10px 12px;border-radius:6px;border-left:3px solid #22c55e;line-height:1.6}
+.pg-num{position:absolute;bottom:12px;right:16px;font-size:10px;color:#bbb;font-weight:600;pointer-events:none}
+.book-nav{display:flex;align-items:center;gap:16px;margin-top:18px}
+.bnav{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);color:#fff;padding:9px 20px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;transition:.2s;backdrop-filter:blur(4px);font-family:'Poppins',sans-serif}
+.bnav:hover{background:rgba(255,255,255,.25)}
+.bnav:disabled{opacity:.3;cursor:not-allowed}
+.bpager{color:#fff;font-size:13px;font-weight:600;min-width:70px;text-align:center}
+.book-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.12);border:none;color:#fff;width:38px;height:38px;border-radius:9px;cursor:pointer;font-size:18px}
+
+/* ---- MSG READ MORE ---- */
+.msg.b .long-preview{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+
+
+
+@media(max-width:1100px){
+  #app.on{grid-template-columns:1fr 260px}
+  .body{grid-template-columns:1fr}
+  .eg{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+  #app.on{grid-template-columns:1fr}
+  .sidebar{position:fixed;right:0;top:0;height:100%;z-index:500;width:280px;transform:translateX(100%);transition:.3s}
+  .sidebar.open{transform:translateX(0);box-shadow:-4px 0 20px rgba(0,0,0,.3)}
+  .chat-toggle{display:flex!important}
+}
+</style>
+</head>
+<body>
+
+<!-- SCREEN: PICK USER -->
+<div id="sA" class="screen">
+  <div class="box" style="max-width:520px;max-height:90vh;overflow-y:auto">
+    <div id="vPick">
+      <h1>📊</h1><h2>ExamIntel Pro</h2>
+      <p id="pickSub">Who's studying today?</p>
+      <div class="upick" id="upick"></div>
+    </div>
+    <div id="vCreate" style="display:none">
+      <h1>👋</h1><h2>Create Account</h2>
+      <p>Fill everything — this personalises your entire experience</p>
+
+      <input class="inp" id="cn" type="text" placeholder="Your full name *">
+      <input class="inp" id="cp" type="password" placeholder="Create a password (min 4 characters) *">
+      <input class="inp" id="cp2" type="password" placeholder="Confirm password *">
+
+
+
+      <select class="inp" id="prCl">
+        <option value="">Class / Year *</option>
+        <option>Class 10</option><option>Class 11</option><option>Class 12</option>
+        <option>B.Tech Yr 1</option><option>B.Tech Yr 2</option><option>B.Tech Yr 3</option><option>B.Tech Yr 4</option>
+        <option>Aspirant / Dropper</option><option>Working Professional</option>
+      </select>
+
+      <input class="inp" id="prIn" placeholder="School / College name *">
+
+<datalist id="examList">
+  <option value="JEE Main">
+  <option value="JEE Advanced">
+  <option value="BITSAT">
+  <option value="VITEEE">
+  <option value="SRMJEEE">
+  <option value="COMEDK">
+  <option value="MHT CET">
+  <option value="KCET">
+  <option value="WBJEE">
+  <option value="AP EAMCET">
+  <option value="TS EAMCET">
+  <option value="KEAM">
+  <option value="GUJCET">
+  <option value="UPCET">
+  <option value="OJEE">
+  <option value="BCECE">
+  <option value="Assam CEE">
+  <option value="GCET">
+  <option value="HP CET">
+  <option value="AMU Engineering">
+  <option value="CUSAT CAT">
+  <option value="Manipal MET">
+  <option value="LPU NEST">
+  <option value="KIIT">
+  <option value="BVP CET">
+  <option value="PESSAT">
+  <option value="TANCET">
+  <option value="SRM AP">
+  <option value="NEET UG">
+  <option value="NEET PG">
+  <option value="NEET MDS">
+  <option value="AIAPGET">
+  <option value="FMGE">
+  <option value="INICET">
+  <option value="NEET SS">
+  <option value="BHU BUCET">
+  <option value="CAT">
+  <option value="XAT">
+  <option value="MAT">
+  <option value="CMAT">
+  <option value="SNAP">
+  <option value="NMAT">
+  <option value="IIFT">
+  <option value="TISSNET">
+  <option value="MICAT">
+  <option value="IRMASAT">
+  <option value="ATMA">
+  <option value="IBSAT">
+  <option value="KMAT Karnataka">
+  <option value="TANCET MBA">
+  <option value="APICET">
+  <option value="NMIMS NPAT">
+  <option value="UPSC CSE">
+  <option value="UPSC CAPF">
+  <option value="UPSC CDS">
+  <option value="UPSC NDA">
+  <option value="UPPSC PCS">
+  <option value="BPSC">
+  <option value="MPSC">
+  <option value="TNPSC Group 1">
+  <option value="TNPSC Group 2">
+  <option value="KPSC KAS">
+  <option value="RPSC RAS">
+  <option value="APPSC">
+  <option value="TSPSC">
+  <option value="GPSC">
+  <option value="JPSC">
+  <option value="CGPSC">
+  <option value="MPPSC">
+  <option value="WBPSC">
+  <option value="PPSC">
+  <option value="HPSC HCS">
+  <option value="UKPSC">
+  <option value="OPSC">
+  <option value="APSC Assam">
+  <option value="JKPSC">
+  <option value="IBPS PO">
+  <option value="IBPS Clerk">
+  <option value="IBPS SO">
+  <option value="IBPS RRB PO">
+  <option value="IBPS RRB Clerk">
+  <option value="SBI PO">
+  <option value="SBI Clerk">
+  <option value="SBI SO">
+  <option value="RBI Grade B">
+  <option value="RBI Assistant">
+  <option value="NABARD Grade A">
+  <option value="NABARD Grade B">
+  <option value="SEBI Grade A">
+  <option value="LIC AAO">
+  <option value="LIC HFL">
+  <option value="NIACL">
+  <option value="NICL">
+  <option value="UIIC">
+  <option value="BOB PO">
+  <option value="Canara Bank PO">
+  <option value="SSC CGL">
+  <option value="SSC CHSL">
+  <option value="SSC MTS">
+  <option value="SSC JE">
+  <option value="SSC GD">
+  <option value="SSC CPO">
+  <option value="SSC Steno">
+  <option value="SSC JHT">
+  <option value="RRB NTPC">
+  <option value="RRB Group D">
+  <option value="RRB ALP">
+  <option value="RRB JE">
+  <option value="RRB Paramedical">
+  <option value="RRC Group D">
+  <option value="NDA">
+  <option value="CDS">
+  <option value="AFCAT">
+  <option value="Agniveer Army">
+  <option value="Agniveer Navy">
+  <option value="Agniveer Air Force">
+  <option value="Indian Coast Guard">
+  <option value="MNS">
+  <option value="CLAT">
+  <option value="AILET">
+  <option value="SLAT">
+  <option value="DU LLB">
+  <option value="CLAT PG">
+  <option value="AP LAWCET">
+  <option value="TS LAWCET">
+  <option value="MH CET Law">
+  <option value="IPMAT">
+  <option value="JIPMAT">
+  <option value="DU JAT">
+  <option value="NMIMS NPAT UG">
+  <option value="BHU UET">
+  <option value="CUET UG">
+  <option value="GGSIPU CET">
+  <option value="SET Symbiosis">
+  <option value="GATE">
+  <option value="JAM">
+  <option value="JEST">
+  <option value="TIFR GS">
+  <option value="NBHM">
+  <option value="CSIR NET">
+  <option value="UGC NET">
+  <option value="PGCET">
+  <option value="NATA">
+  <option value="NID">
+  <option value="NIFT">
+  <option value="CEED">
+  <option value="UCEED">
+  <option value="PEARL Academy">
+  <option value="CTET">
+  <option value="DSSSB">
+  <option value="KVS PGT">
+  <option value="NVS">
+  <option value="UP TET">
+  <option value="REET">
+  <option value="HTET">
+  <option value="BTET">
+  <option value="MP TET">
+  <option value="CGTET">
+  <option value="AP TET">
+  <option value="TS TET">
+  <option value="KARTET">
+  <option value="MAH TET">
+  <option value="NCHM JEE">
+  <option value="GPAT">
+  <option value="CA Foundation">
+  <option value="CA Intermediate">
+  <option value="CA Final">
+  <option value="CS Foundation">
+  <option value="CS Executive">
+  <option value="CMA Foundation">
+  <option value="IIMC">
+  <option value="TISS BAT">
+</datalist>
+      <input list="examList" class="inp" id="prEx" placeholder="🔍 Type to search exam e.g. JEE, NEET, UPSC..." autocomplete="off">
+
+      <div class="etxt" id="ce"></div>
+      <button class="btn" onclick="doCreate()">Create Account & Start →</button>
+      <span class="lnk" onclick="showPick()" id="backToPickBtn">← Back to users</span>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: ENTER PASSWORD -->
+<div id="sB" class="screen off">
+  <div class="box">
+    <h1 id="pAv">👤</h1>
+    <h2 id="pNm">Enter Password</h2>
+    <p>Enter your password to continue</p>
+    <input class="inp" id="pi" type="password" placeholder="Your password">
+    <div class="etxt" id="pe"></div>
+    <button class="btn" onclick="checkPwd()">Sign In →</button>
+    <span class="lnk" onclick="backPick()">← Back to users</span>
+  </div>
+</div>
+
+<!-- SCREEN: PROFILE EDIT (for existing users who need to update) -->
+<div id="sC" class="screen off">
+  <div class="box">
+    <h1>✏️</h1><h2>Complete Your Profile</h2>
+    <p>All fields are required to unlock exam features</p>
+    <select class="inp" id="prClE"><option value="">Class / Year *</option>
+      <option>Class 10</option><option>Class 11</option><option>Class 12</option>
+      <option>B.Tech Yr 1</option><option>B.Tech Yr 2</option><option>B.Tech Yr 3</option><option>B.Tech Yr 4</option>
+      <option>Aspirant / Dropper</option><option>Working Professional</option>
+    </select>
+    <input class="inp" id="prInE" placeholder="School / College name *">
+    <input list="examList" class="inp" id="prExE" placeholder="🔍 Type exam name e.g. JEE, NEET, UPSC..." autocomplete="off">
+    <div class="etxt" id="prErr"></div>
+    <button class="btn" onclick="saveProf()">Save & Start →</button>
+  </div>
+</div>
+
+<!-- SWITCH PASSWORD MODAL -->
+<div class="mbg off" id="swM">
+  <div class="mb">
+    <h3 id="swT">Switch User</h3><p id="swS">Enter password to switch</p>
+    <input class="inp" id="swP" type="password" placeholder="Password" style="text-align:center">
+    <div class="etxt" id="swE" style="text-align:center"></div>
+    <button class="btn" onclick="doSwitch()" style="margin-bottom:10px">Confirm →</button><br>
+    <span class="lnk" onclick="cancelSw()">Cancel</span>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="main">
+    <div class="header">
+      <div class="logo">📊 ExamIntel Pro</div>
+      <div class="hright">
+        <span id="hName" style="font-size:12px;font-weight:700;color:var(--text)"></span>
+        <button class="chat-toggle" onclick="toggleSidebar()">🤖 Chat</button>
+        <select id="uSel" class="hbtn" onchange="reqSwitch(this.value)" style="font-family:inherit"></select>
+        <button class="hbtn red" onclick="doLogout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- MOTIVATION + COUNTDOWN BAR -->
+    <div class="motiv-bar" id="motivBar">
+      <div class="motiv-quote" id="motivQuote">💪 Loading your motivation...</div>
+      <div class="countdown-chips" id="countdownChips"></div>
+    </div>
+    <div class="tabs">
+      <button class="tbtn on" data-tab="tools">🔮 Predictor</button>
+      <button class="tbtn" data-tab="todo">📝 To-Do</button>
+      <button class="tbtn" data-tab="vault">📚 Exam Vault</button>
+      <button class="tbtn" data-tab="pyq">📄 PYQ Papers</button>
+      <button class="tbtn" data-tab="news">📰 News</button>
+      <button class="tbtn" data-tab="calc">🔢 Calculator</button>
+      <button class="tbtn" data-tab="users">👥 Users</button>
+      <button class="tbtn" data-tab="settings">⚙️ Settings</button>
+    </div>
+    <div class="body">
+
+      <!-- PREDICTOR TAB -->
+      <div class="pane on" id="tab-tools">
+        <div>
+          <!-- TRIAL BADGE -->
+          <div id="trialBadge" style="display:none;background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:#fff;padding:12px 16px;border-radius:10px;margin-bottom:14px;font-size:12px;font-weight:700;text-align:center">
+            🎭 DEMO MODE — You're on a trial account. No exam countdown. Create a real account to unlock all features.
+          </div>
+
+          <!-- BIG BOLD EXAM TIMER -->
+          <div id="bigTimer" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:14px;padding:28px 20px;margin-bottom:16px;text-align:center;color:#fff;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:repeating-linear-gradient(45deg,rgba(255,255,255,.03),rgba(255,255,255,.03) 10px,transparent 10px,transparent 20px)"></div>
+            <div id="timerExamName" style="font-size:13px;font-weight:700;opacity:.85;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase"></div>
+            <div id="timerDays" style="font-size:72px;font-weight:800;line-height:1;letter-spacing:-2px;font-family:'Poppins',sans-serif"></div>
+            <div style="font-size:13px;font-weight:600;opacity:.8;margin-bottom:16px;letter-spacing:2px;text-transform:uppercase">DAYS TO GO</div>
+            <div style="display:flex;justify-content:center;gap:16px;margin-bottom:16px">
+              <div style="background:rgba(255,255,255,.2);border-radius:8px;padding:8px 16px;backdrop-filter:blur(4px)">
+                <div id="timerH" style="font-size:24px;font-weight:800;line-height:1">--</div>
+                <div style="font-size:10px;opacity:.8;letter-spacing:1px">HOURS</div>
+              </div>
+              <div style="background:rgba(255,255,255,.2);border-radius:8px;padding:8px 16px;backdrop-filter:blur(4px)">
+                <div id="timerM" style="font-size:24px;font-weight:800;line-height:1">--</div>
+                <div style="font-size:10px;opacity:.8;letter-spacing:1px">MINS</div>
+              </div>
+              <div style="background:rgba(255,255,255,.2);border-radius:8px;padding:8px 16px;backdrop-filter:blur(4px)">
+                <div id="timerS" style="font-size:24px;font-weight:800;line-height:1">--</div>
+                <div style="font-size:10px;opacity:.8;letter-spacing:1px">SECS</div>
+              </div>
+            </div>
+            <div id="timerQuote" style="font-size:13px;font-weight:600;opacity:.9;font-style:italic"></div>
+          </div>
+
+          <div class="apib">
+            <label>🔑 COHERE API KEY (PRIVATE — SAVED PER USER)</label>
+            <input type="text" id="apiI" placeholder="Paste your Cohere key here..." oninput="saveApi()">
+            <div class="abtns">
+              <button class="absave" onclick="saveApi();this.textContent='✅ Saved!';setTimeout(()=>this.textContent='💾 Save',1500)">💾 Save</button>
+              <button class="abtest" onclick="testKey()">🧪 Test Key</button>
+            </div>
+            <div id="ks"></div>
+            <small style="font-size:10px;opacity:.85;margin-top:4px;display:block">Free key: <a href="https://dashboard.cohere.com/api-keys" target="_blank" style="color:#fff;font-weight:800">dashboard.cohere.com/api-keys</a></small>
+          </div>
+          <div class="sec">
+            <h3>🔮 Paper Predictor + Question Prediction</h3>
+            <div class="dz" id="dz" onclick="document.getElementById('fi').click()">
+              <div style="font-size:22px">📄</div>
+              <p style="font-size:12px;color:var(--sub);margin:4px 0"><b>Click or drag previous year PDFs</b></p>
+              <p style="font-size:10px;color:var(--sub)">Upload 2+ papers for best prediction</p>
+              <input type="file" id="fi" accept=".pdf" multiple style="display:none">
+            </div>
+            <div class="fl" id="fl"></div>
+            <button class="ab" id="pb" onclick="predict()">🚀 Predict Paper + Likely Questions</button>
+            <div class="po" id="po" style="display:none"></div>
+          </div>
+        </div>
+        <div>
+          <div class="sec">
+            <h3>👤 Your Profile</h3>
+            <div class="pfield"><label>Class / Year</label><input id="eClass" placeholder="Class 12" oninput="updProf()"></div>
+            <div class="pfield"><label>School / College</label><input id="eInst" placeholder="Slate The School" oninput="updProf()"></div>
+            <div class="pfield"><label>Target Exam</label>
+              <input list="examList" id="eExam" placeholder="🔍 Type exam name..." autocomplete="off" oninput="updProf()" style="width:100%;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--card);color:var(--text)">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TODO TAB -->
+      <div class="fp" id="tab-todo">
+        <div class="sec">
+          <h3>📝 Study To-Do List</h3>
+          <div class="trow">
+            <input type="text" id="tIn" placeholder="Add a study task...">
+            <select id="tPr">
+              <option value="normal">Normal</option>
+              <option value="high">🔴 High</option>
+              <option value="med">🟡 Medium</option>
+              <option value="low">🟢 Low</option>
+            </select>
+            <button onclick="addTodo()">Add</button>
+            <select id="tFl" onchange="renderTodos()">
+              <option value="all">All</option>
+              <option value="pend">Pending</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+          <div class="tstats" id="tStats"></div>
+          <div class="tlist" id="tList"></div>
+        </div>
+      </div>
+
+      <!-- VAULT TAB -->
+      <div class="fp" id="tab-vault">
+        <div class="sec">
+          <h3>📚 Complete Exam Vault — All Major Indian Exams</h3>
+          <div id="vaultContent"></div>
+        </div>
+      </div>
+
+      <!-- PYQ TAB -->
+      <div class="fp" id="tab-pyq">
+        <div class="sec">
+          <h3>📄 Previous Year Question Papers</h3>
+          <p style="font-size:12px;color:var(--sub);margin-bottom:16px">Official &amp; trusted sources. Click links to access.</p>
+          <div id="pyqC"></div>
+        </div>
+      </div>
+
+      <!-- NEWS TAB -->
+      <div class="fp" id="tab-news">
+        <div class="sec">
+          <h3>📰 Latest Exam News</h3>
+          <button class="ab" onclick="getNews()" style="margin-bottom:16px">🔄 Refresh Real News</button>
+          <p style="font-size:11px;color:var(--sub);margin-bottom:12px">Live from Google News — no API key needed ✓</p>
+          <div id="newsOut"><p style="font-size:12px;color:var(--sub)">Click Refresh to load exam news.</p></div>
+        </div>
+      </div>
+
+      <!-- USERS TAB -->
+
+      <!-- CALCULATOR TAB -->
+      <div class="fp" id="tab-calc">
+        <div class="sec">
+          <h3>🔢 Scientific Calculator</h3>
+          <div class="calc-wrap">
+            <!-- DISPLAY -->
+            <div class="calc-display">
+              <div class="calc-expr" id="calcExpr"></div>
+              <div class="calc-result" id="calcOut">0</div>
+            </div>
+            <!-- SCIENTIFIC ROW 1 -->
+            <div class="calc-sci-row five">
+              <button class="cbtn sci" onclick="calcInput('sin(')">sin</button>
+              <button class="cbtn sci" onclick="calcInput('cos(')">cos</button>
+              <button class="cbtn sci" onclick="calcInput('tan(')">tan</button>
+              <button class="cbtn sci" onclick="calcInput('log(')">log</button>
+              <button class="cbtn sci" onclick="calcInput('sqrt(')">√</button>
+            </div>
+            <!-- SCIENTIFIC ROW 2 -->
+            <div class="calc-sci-row five" style="margin-bottom:10px">
+              <button class="cbtn sci" onclick="calcInput('(')"> ( </button>
+              <button class="cbtn sci" onclick="calcInput(')')"> ) </button>
+              <button class="cbtn sci" onclick="calcInput('pi')">π</button>
+              <button class="cbtn sci" onclick="calcInput('e')">e</button>
+              <button class="cbtn bk" onclick="calcBackspace()">⌫</button>
+            </div>
+            <!-- NUMBER GRID -->
+            <div class="calc-num-grid">
+              <button class="cbtn ac" onclick="calcClear()">AC</button>
+              <button class="cbtn ac" onclick="calcToggleSign()">+/−</button>
+              <button class="cbtn ac" onclick="calcInput('^')">xʸ</button>
+              <button class="cbtn op" onclick="calcInput('/')">÷</button>
+
+              <button class="cbtn num" onclick="calcInput('7')">7</button>
+              <button class="cbtn num" onclick="calcInput('8')">8</button>
+              <button class="cbtn num" onclick="calcInput('9')">9</button>
+              <button class="cbtn op" onclick="calcInput('*')">×</button>
+
+              <button class="cbtn num" onclick="calcInput('4')">4</button>
+              <button class="cbtn num" onclick="calcInput('5')">5</button>
+              <button class="cbtn num" onclick="calcInput('6')">6</button>
+              <button class="cbtn op" onclick="calcInput('-')">−</button>
+
+              <button class="cbtn num" onclick="calcInput('1')">1</button>
+              <button class="cbtn num" onclick="calcInput('2')">2</button>
+              <button class="cbtn num" onclick="calcInput('3')">3</button>
+              <button class="cbtn op" onclick="calcInput('+')">+</button>
+
+              <button class="cbtn num" onclick="calcInput('0')" style="grid-column:span 2">0</button>
+              <button class="cbtn num" onclick="calcInput('.')">.</button>
+              <button class="cbtn eq" onclick="calcEquals()">=</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fp" id="tab-users">
+        <div class="sec"><h3>👥 All Users</h3><div class="ug" id="ugrid"></div></div>
+        <div class="sec" style="margin-top:0">
+          <h3>➕ Create New User</h3>
+          <div class="nuf">
+            <input type="text" id="nuN" placeholder="Name">
+            <input type="password" id="nuP" placeholder="Password">
+            <input type="password" id="nuP2" placeholder="Confirm password">
+            <button onclick="createFromApp()">Create User</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS TAB -->
+      <div class="fp" id="tab-settings">
+        <div class="sec">
+          <h3>🎨 Theme</h3>
+          <div class="thms">
+            <div class="thc on" id="th-light" style="background:linear-gradient(135deg,#f8f9fa,#fff);border:3px solid #ddd" onclick="setTheme('light')" title="Light"><span class="tk">✓</span></div>
+            <div class="thc" id="th-dark" style="background:linear-gradient(135deg,#0d0f1a,#1a1f3a)" onclick="setTheme('dark')" title="Dark"><span class="tk" style="color:#fff">✓</span></div>
+            <div class="thc" id="th-purple" style="background:linear-gradient(135deg,#9333ea,#7e22ce)" onclick="setTheme('purple')" title="Purple"><span class="tk" style="color:#fff">✓</span></div>
+            <div class="thc" id="th-green" style="background:linear-gradient(135deg,#22c55e,#16a34a)" onclick="setTheme('green')" title="Green"><span class="tk" style="color:#fff">✓</span></div>
+          </div>
+          <p style="font-size:12px;color:var(--sub)">Theme saved per user.</p>
+        </div>
+        <div class="sec" style="margin-top:0">
+          <h3>🔐 Change Password</h3>
+          <div style="max-width:280px">
+            <input class="inp" id="cpO" type="password" placeholder="Current password">
+            <input class="inp" id="cpN" type="password" placeholder="New password">
+            <input class="inp" id="cpN2" type="password" placeholder="Confirm new password">
+            <div class="etxt" id="cpE"></div>
+            <button class="ab" onclick="changePwd()" style="margin-bottom:0">Update Password</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="sidebar">
+    <div class="sbh">
+      <span class="sbh-title" id="curChatName">💬 New Chat</span>
+      <button class="sbh-btn" onclick="newChat()" title="New chat">✏️ New</button>
+    </div>
+    <!-- ALWAYS VISIBLE CHAT LIST -->
+    <div id="chatList" style="background:var(--bg);border-bottom:2px solid var(--border);max-height:120px;overflow-y:auto;flex-shrink:0"></div>
+    <div style="background:#fff3cd;border-bottom:1px solid #ffc107;padding:5px 10px;font-size:10px;color:#856404;flex-shrink:0">⚠️ Verify AI math — use the calculator tab</div>
+    <div class="msgs" id="msgs"></div>
+    <div class="sbf">
+      <input type="text" id="cIn" placeholder="Ask anything..." onkeypress="if(event.key==='Enter')sendMsg()">
+      <button onclick="sendMsg()">→</button>
+    </div>
+  </div>
+</div>
+
+<!-- FORMATTED RESPONSE MODAL -->
+<div class="fmodal-bg off" id="fModal">
+  <div class="fmodal">
+    <div class="fmodal-head">
+      <h3 id="fModalTitle">Response</h3>
+      <button class="fmodal-close" onclick="document.getElementById('fModal').classList.add('off')">✕</button>
+    </div>
+    <div class="fmodal-body" id="fModalBody"></div>
+  </div>
+</div>
+
+<!-- BOOK VIEWER -->
+<div class="book-bg off" id="bookBg">
+  <button class="book-close" onclick="closeBook()">✕</button>
+  <div class="book-header" id="bookTitle">📄 Predicted Question Paper</div>
+  <div class="book-scene">
+    <!-- BOTTOM: next page shows through -->
+    <div class="page-under" id="pageUnder">
+      <div class="pg-content" id="pageUnderContent"></div>
+      <div class="pg-num" id="pageUnderNum"></div>
+    </div>
+    <!-- TOP: current page, flips -->
+    <div class="page-over" id="pageOver" onclick="bookNext()">
+      <div class="pg-content" id="pageOverContent"></div>
+      <div class="pg-num" id="pageOverNum"></div>
+    </div>
+  </div>
+  <div class="book-nav">
+    <button class="bnav" id="bPrev" onclick="bookPrev()">← Prev</button>
+    <div class="bpager" id="bPager">1 / 1</div>
+    <button class="bnav" id="bNext" onclick="bookNext()">Next →</button>
+  </div>
+</div>
+
+<div class="footer">🎬 <a href="https://www.youtube.com/@ChattyChop" target="_blank">YT ChattyChop</a><br>Creator: <b>G. Badrinath</b></div>
+
+<script>
+const AVS=['🎓','📖','🧠','⚡','🔬','🏆','🎯','🌟','🦁','🐯'];
+// ---- WIPE OLD JUNK KEYS ONLY (never touch examIntelFinal) ----
+if(!localStorage.getItem('ei_cleaned_v3')){
+  ['ei_users','ei_v2','ei3','ei_v2_users','examIntel_users','examIntel_user',
+   'examIntel_apiKey','examIntel_darkMode','examIntel_todos',
+   'examIntel_profile','examIntel_currentUser'].forEach(k=>localStorage.removeItem(k));
+  // NOTE: examIntelFinal is NOT wiped — preserves accounts and chats
+  localStorage.setItem('ei_cleaned_v3','1');
+}
+
+let users=JSON.parse(localStorage.getItem('examIntelFinal')||'[]');
+let cur=null,pendId=null,papers=[];
+
+// ---- SAVE ----
+function saveAll(){
+  try{
+    if(!cur) return;
+    const idx=users.findIndex(u=>u.id===cur.id);
+    if(idx>=0) users[idx]=cur;
+    const data=JSON.stringify(users);
+    localStorage.setItem('examIntelFinal',data);
+  }catch(e){
+    console.error('Save failed:',e);
+  }
+}
+
+// ---- BOOT ----
+window.onload=function(){
+  buildVault(); buildPYQ(); setupTabs();
+  showPick(); // always start at pick screen
+};
+
+// ---- SCREENS ----
+function sh(id){
+  ['sA','sB','sC'].forEach(s=>document.getElementById(s).classList.add('off'));
+  document.getElementById(id).classList.remove('off');
+}
+
+function showPick(){
+  sh('sA');
+  document.getElementById('app').style.display='none';
+  document.getElementById('app').classList.remove('on');
+  document.getElementById('vPick').style.display='block';
+  document.getElementById('vCreate').style.display='none';
+
+  const g=document.getElementById('upick');
+  // render user cards + a "+" add card at the end
+  const cards=users.map((u,i)=>`
+    <div class="upc" onclick="pickUser(${u.id})">
+      <div class="av">${u.avatar||AVS[i%AVS.length]}</div>
+      <div class="un">${u.name}</div>
+    </div>`).join('');
+  const addCard=`
+    <div class="upc" onclick="showCreate()" style="border:2px dashed #ccc;color:#999">
+      <div class="av">➕</div>
+      <div class="un" style="color:#999">Add User</div>
+    </div>`;
+  g.innerHTML = cards + addCard;
+
+  if(!users.length){
+    document.getElementById('pickSub').textContent='No accounts yet — create one!';
+  } else {
+    document.getElementById('pickSub').textContent="Who's studying today?";
+  }
+}
+
+function showCreate(){
+  document.getElementById('vPick').style.display='none';
+  document.getElementById('vCreate').style.display='block';
+  ['cn','cp','cp2','prIn'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('prCl').selectedIndex=0;
+  document.getElementById('prEx').selectedIndex=0;
+  // exam is now text input, no toggle needed
+  document.getElementById('ce').textContent='';
+  document.getElementById('backToPickBtn').style.display=users.length?'inline-block':'none';
+  setTimeout(()=>document.getElementById('cn').focus(),80);
+}
+
+function toggleOtherExam(){
+  const sel=document.getElementById('prEx');
+  const inp=document.getElementById('prExOther');
+  inp.style.display=sel.value==='Other'?'block':'none';
+  if(sel.value==='Other') inp.focus();
+}
+
+function toggleOtherExamE(){
+  const sel=document.getElementById('prExE');
+  const inp=document.getElementById('prExOtherE');
+  inp.style.display=sel.value==='Other'?'block':'none';
+  if(sel.value==='Other') inp.focus();
+}
+
+function getExamValue(selId, otherId){
+  // prEx is now a text input (datalist), otherId is unused
+  const el=document.getElementById(selId);
+  return el ? el.value.trim() : '';
+}
+
+function validateExam(examName){
+  if(!examName) return '❌ Select or type your target exam';
+  // basic logic check — at least 2 chars, not random gibberish
+  if(examName.length<2) return '❌ Please enter a valid exam name';
+  if(/^[^a-zA-Z0-9]+$/.test(examName)) return '❌ That doesn\'t look like a valid exam name';
+  // check for obvious nonsense (random characters)
+  const wordLike=/[a-zA-Z]{2,}/.test(examName);
+  if(!wordLike) return '❌ Please enter a real exam name (e.g. WBJEE, AP EAMCET)';
+  return null;
+}
+
+function doCreate(){
+  const n=document.getElementById('cn').value.trim();
+  const p=document.getElementById('cp').value;
+  const p2=document.getElementById('cp2').value;
+  const cl=document.getElementById('prCl').value;
+  const inst=document.getElementById('prIn').value.trim();
+  const exam=getExamValue('prEx','prExOther');
+  const e=document.getElementById('ce');
+
+  if(!n){e.textContent='❌ Enter your full name';return;}
+  if(p.length<4){e.textContent='❌ Password must be at least 4 characters';return;}
+  if(p!==p2){e.textContent='❌ Passwords do not match';return;}
+  if(users.find(u=>u.name.toLowerCase()===n.toLowerCase())){e.textContent='❌ A user with that name already exists';return;}
+
+  // trial mode — skip profile validation
+  const isTrial=(p==='trial');
+
+  if(!isTrial){
+    if(!cl){e.textContent='❌ Select your class/year';return;}
+    if(!inst){e.textContent='❌ Enter your school/college name';return;}
+    const examErr=validateExam(exam);
+    if(examErr){e.textContent=examErr;return;}
+  }
+
+  const u={
+    id:Date.now(),
+    name:n,
+    pass:p,
+    avatar:AVS[users.length%AVS.length],
+    api:'',todos:[],theme:'light',
+    isTrial,
+    profile:isTrial
+      ? {cl:'Demo',inst:'ExamIntel Pro',exam:'Demo Mode'}
+      : {cl,inst,exam},
+    chats:[],activeChatId:null
+  };
+  users.push(u);
+  localStorage.setItem('examIntelFinal',JSON.stringify(users));
+  cur=u;
+  enterApp();
+}
+
+function saveProf(){
+  const cl=document.getElementById('prClE').value;
+  const inst=document.getElementById('prInE').value.trim();
+  const exam=document.getElementById('prExE')?.value.trim()||'';
+  const e=document.getElementById('prErr');
+
+  if(!cl){e.textContent='❌ Select your class/year';return;}
+  if(!inst){e.textContent='❌ Enter your school/college name';return;}
+  const examErr=validateExam(exam);
+  if(examErr){e.textContent=examErr;return;}
+
+  cur.profile={cl,inst,exam};
+  saveAll();
+  enterApp();
+}
+
+// skipProf REMOVED — form is compulsory for non-trial accounts
+
+function pickUser(id){
+  pendId=id;
+  const u=users.find(x=>x.id===id);
+  document.getElementById('pAv').textContent=u.avatar||'👤';
+  document.getElementById('pNm').textContent=u.name;
+  document.getElementById('pi').value='';
+  document.getElementById('pe').textContent='';
+  sh('sB');
+  setTimeout(()=>document.getElementById('pi').focus(),80);
+}
+
+document.addEventListener('keypress',function(e){
+  if(e.key==='Enter'){
+    if(!document.getElementById('sB').classList.contains('off'))checkPwd();
+    else if(!document.getElementById('swM').classList.contains('off'))doSwitch();
+  }
+});
+
+function checkPwd(){
+  const u=users.find(x=>x.id===pendId);
+  const v=document.getElementById('pi').value;
+  if(v===u.pass){
+    cur=u;
+    // profile is always set at creation now — if somehow missing, show sC
+    if(!cur.profile){
+      sh('sC');
+    } else {
+      enterApp();
+    }
+  } else {
+    document.getElementById('pe').textContent='❌ Wrong password';
+    document.getElementById('pi').value='';
+    document.getElementById('pi').focus();
+  }
+}
+
+function backPick(){sh('sA');showPick();}
+
+
+function enterApp(){
+  ['sA','sB','sC'].forEach(s=>document.getElementById(s).classList.add('off'));
+  document.getElementById('swM').classList.add('off');
+  document.getElementById('app').style.display='grid';
+  document.getElementById('app').classList.add('on');
+  applyTheme(cur.theme||'light');
+  renderAll();
+  loadChatUI();
+  syncTabChat();
+  startMotivation();
+}
+
+function renderAll(){
+  document.getElementById('hName').textContent=cur.name;
+  document.getElementById('apiI').value=cur.api||'';
+  const sel=document.getElementById('uSel');
+  sel.innerHTML='<option value="">Switch User</option>'+users.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+  // restore saved profile fields
+  const p=cur.profile||{};
+  document.getElementById('eClass').value=p.cl||'';
+  document.getElementById('eInst').value=p.inst||'';
+  const ex=document.getElementById('eExam');
+  const examInput=document.getElementById('eExam');
+  if(examInput) examInput.value=p.exam||'';
+  document.getElementById('sbSub').textContent=p.exam?`${p.exam} coach — ask anything`:'Ask about your exam only';
+  renderTodos();renderUserGrid();
+  document.querySelectorAll('.thc').forEach(c=>c.classList.remove('on'));
+  const thEl=document.getElementById('th-'+(cur.theme||'light'));
+  if(thEl)thEl.classList.add('on');
+}
+
+function updProf(){
+  if(!cur.profile)cur.profile={};
+  cur.profile.cl=document.getElementById('eClass').value;
+  cur.profile.inst=document.getElementById('eInst').value;
+  cur.profile.exam=document.getElementById('eExam').value.trim();
+  saveAll();
+  document.getElementById('sbSub').textContent=cur.profile.exam?`${cur.profile.exam} coach`:'Ask anything';
+  startBigTimer();
+}
+
+// ---- SWITCH USER ----
+function reqSwitch(id){
+  if(!id)return;document.getElementById('uSel').value='';
+  const uid=parseInt(id);if(uid===cur.id)return;
+  pendId=uid;const u=users.find(x=>x.id===uid);
+  document.getElementById('swT').textContent='Switch to '+u.name;
+  document.getElementById('swS').textContent="Enter "+u.name+"'s password";
+  document.getElementById('swP').value='';document.getElementById('swE').textContent='';
+  document.getElementById('swM').classList.remove('off');
+  setTimeout(()=>document.getElementById('swP').focus(),80);
+}
+function doSwitch(){
+  const u=users.find(x=>x.id===pendId),v=document.getElementById('swP').value;
+  if(v===u.pass){
+    cur=u;
+    document.getElementById('swM').classList.add('off');
+    applyTheme(cur.theme||'light');
+    renderAll();
+    loadChatUI();
+    startMotivation();
+  } else {
+    document.getElementById('swE').textContent='❌ Wrong password';
+    document.getElementById('swP').value='';
+  }
+}
+function cancelSw(){document.getElementById('swM').classList.add('off');pendId=null;}
+function doLogout(){if(confirm('Log out?')){cur=null;document.getElementById('app').style.display='none';document.getElementById('app').classList.remove('on');applyTheme('light');showPick();}}
+
+// ---- TABS ----
+function setupTabs(){
+  document.querySelectorAll('.tbtn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
+      document.querySelectorAll('.pane,.fp').forEach(p=>p.classList.remove('on'));
+      this.classList.add('on');
+      const t=document.getElementById('tab-'+this.dataset.tab);
+      if(t)t.classList.add('on');
+      if(this.dataset.tab==='chat') syncTabChat();
+    });
+  });
+}
+
+// ---- THEME ----
+function setTheme(n){applyTheme(n);cur.theme=n;saveAll();document.querySelectorAll('.thc').forEach(c=>c.classList.remove('on'));document.getElementById('th-'+n).classList.add('on');}
+function applyTheme(n){document.body.className=n==='light'?'':n;}
+
+// ---- API ----
+function saveApi(){cur.api=document.getElementById('apiI').value;saveAll();}
+async function testKey(){
+  const k=document.getElementById('apiI').value.trim(),s=document.getElementById('ks');
+  if(!k){s.style.color='#ff0';s.textContent='⚠️ No key entered!';return;}
+  s.style.color='#fff';s.textContent='⏳ Testing...';
+  try{
+    const r=await fetch('https://api.cohere.com/v2/chat',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'command-r-plus-08-2024',messages:[{role:'user',content:'Say OK'}]})});
+    const d=await r.json();
+    if(!r.ok){s.style.color='#ff4';s.textContent='❌ '+r.status+': '+(d.message||'Error');return;}
+    saveApi();s.style.color='#0f0';s.textContent='✅ Key works!';
+  }catch(e){s.style.color='#ff4';s.textContent='❌ '+e.message;}
+}
+
+// ---- FILES ----
+const dz=document.getElementById('dz'),fi=document.getElementById('fi');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='var(--accent)';});
+dz.addEventListener('dragleave',()=>{dz.style.borderColor='#aaa';});
+dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='#aaa';loadFiles(e.dataTransfer.files);});
+fi.addEventListener('change',e=>loadFiles(e.target.files));
+
+async function loadFiles(files){
+  if(typeof pdfjsLib==='undefined'){
+    await ldScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+  for(const f of files){
+    if(f.type==='application/pdf'){
+      const buf=await f.arrayBuffer();const doc=await pdfjsLib.getDocument({data:buf}).promise;
+      let txt='';
+      for(let i=1;i<=Math.min(doc.numPages,6);i++){const pg=await doc.getPage(i);const c=await pg.getTextContent();txt+=c.items.map(x=>x.str).join(' ')+'\n';}
+      papers.push({name:f.name,txt});renderFiles();
+    }
+  }
+}
+function renderFiles(){document.getElementById('fl').innerHTML=papers.map((p,i)=>`<div class="fi"><span>📄 ${p.name}</span><button class="xb" onclick="papers.splice(${i},1);renderFiles()">✕</button></div>`).join('');}
+
+// ---- PREDICT ----
+async function predict(){
+  const k=document.getElementById('apiI').value.trim();
+  if(!papers.length){alert('Upload at least one PDF first');return;}
+  if(!k){alert('Paste your Cohere API key in the red box');return;}
+  const btn=document.getElementById('pb');btn.disabled=true;btn.textContent='⏳ Analyzing...';
+  const po=document.getElementById('po');po.style.display='block';po.innerHTML='<p>🔍 Analyzing papers with AI — will open as a question paper...</p>';
+  const exam=cur.profile?.exam||'exam';
+  const combined=papers.map(p=>`=== ${p.name} ===\n${p.txt.substring(0,2500)}`).join('\n\n');
+  try{
+    const r=await fetch('https://api.cohere.com/v2/chat',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'command-r-plus-08-2024',messages:[{role:'user',content:`You are an expert ${exam} paper analyst for ${cur.name} (${cur.profile?.cl||''}).
+
+Analyze these past papers:
+
+${combined}
+
+Respond with EXACTLY this structure:
+
+## 🎯 High Probability Topics
+List top 10 topics with % likelihood. Be specific.
+
+## 📝 Predicted Questions
+Write exactly 12 actual exam-style questions numbered 1-12 based on patterns. Write full question statements with marks. Example:
+1. Define Newton's second law of motion and derive the equation F=ma. (5 marks)
+2. Solve: If x² + 5x + 6 = 0, find the values of x. (3 marks)
+
+## ✅ Answers
+Provide numbered answers 1-12 corresponding to the questions above. Keep concise but complete.
+
+## 📊 Chapter-wise Weightage
+Marks distribution table.
+
+## 🔮 Difficulty Split
+Expected easy/medium/hard % with reasoning.
+
+## ⚠️ Wildcard Topics
+Topics overdue to appear.
+
+## 💡 Last-Week Focus
+Top 5 revision priorities.`}]})});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.message||'API Error '+r.status);
+    const txt=d.message.content[0].text;
+    // show summary in panel
+    if(typeof marked==='undefined')await ldScript('https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js');
+    po.innerHTML=`
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <button onclick="openBook(buildPredictionBook(window._lastPred,'${exam} Paper'),null)" style="padding:8px 14px;background:#667eea;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px">📖 Open as Question Paper Book</button>
+        <button onclick="showFormatted('${exam} — Full Analysis',window._lastPred)" style="padding:8px 14px;background:#22c55e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px">📄 Full Formatted Analysis</button>
+      </div>
+      ${marked.parse(txt.substring(0,600)+'...')}`;
+    window._lastPred=txt;
+  }catch(e){po.innerHTML='❌ '+e.message;console.error(e);}
+  finally{btn.disabled=false;btn.textContent='🚀 Predict Paper + Likely Questions';}
+}
+
+// ---- TODO ----
+function addTodo(){
+  const t=document.getElementById('tIn').value.trim(),p=document.getElementById('tPr').value;
+  if(!t)return;
+  if(!cur.todos)cur.todos=[];
+  cur.todos.push({t,done:false,prio:p,d:new Date().toLocaleDateString('en-IN')});
+  saveAll();document.getElementById('tIn').value='';renderTodos();
+}
+document.getElementById('tIn').onkeypress=e=>{if(e.key==='Enter')addTodo();};
+
+function renderTodos(){
+  if(!cur)return;
+  const todos=cur.todos||[];
+  const fl=document.getElementById('tFl')?.value||'all';
+  const shown=todos.filter(t=>fl==='all'?true:fl==='done'?t.done:!t.done);
+  const dn=todos.filter(t=>t.done).length;
+  document.getElementById('tStats').innerHTML=`<b>${todos.length}</b> total &nbsp;•&nbsp; <b style="color:var(--accent)">${todos.length-dn}</b> pending &nbsp;•&nbsp; <b style="color:#22c55e">${dn}</b> done`;
+  const pc={high:'#ef4444',med:'#f59e0b',low:'#22c55e',normal:'transparent'};
+  const pl={high:'High',med:'Medium',low:'Low',normal:''};
+  document.getElementById('tList').innerHTML=shown.map(t=>{
+    const i=todos.indexOf(t);
+    return `<div class="ti">
+      <input type="checkbox" ${t.done?'checked':''} onchange="togTodo(${i})">
+      ${t.prio&&t.prio!=='normal'?`<span class="ptag" style="background:${pc[t.prio]}">${pl[t.prio]}</span>`:''}
+      <span class="${t.done?'dn':''}">${t.t}</span>
+      <span style="font-size:10px;color:var(--sub);margin-left:auto;margin-right:8px">${t.d||''}</span>
+      <button class="xb" onclick="delTodo(${i})">×</button>
+    </div>`;
+  }).join('')||'<p style="font-size:12px;color:var(--sub);text-align:center;padding:20px">No tasks! Add one above.</p>';
+}
+function togTodo(i){cur.todos[i].done=!cur.todos[i].done;saveAll();renderTodos();}
+function delTodo(i){cur.todos.splice(i,1);saveAll();renderTodos();}
+
+// ---- VAULT ----
+const EXAMS=[
+  {n:'JEE Main',i:'⚡',c:'Engineering',u:'https://jeemain.nta.nic.in'},
+  {n:'JEE Advanced',i:'🔥',c:'Engineering',u:'https://jeeadv.ac.in'},
+  {n:'BITSAT',i:'💻',c:'Engineering',u:'https://www.bitsadmission.com'},
+  {n:'VITEEE',i:'🏫',c:'Engineering',u:'https://viteee.vit.ac.in'},
+  {n:'SRMJEEE',i:'📐',c:'Engineering',u:'https://www.srmist.edu.in'},
+  {n:'MHT CET',i:'🌏',c:'Engineering',u:'https://cetcell.mahacet.org'},
+  {n:'KCET',i:'📌',c:'Engineering',u:'https://cetonline.karnataka.gov.in'},
+  {n:'COMEDK',i:'🏗',c:'Engineering',u:'https://www.comedk.org'},
+  {n:'AP EAMCET',i:'🔷',c:'Engineering',u:'https://sche.ap.gov.in'},
+  {n:'TS EAMCET',i:'🔶',c:'Engineering',u:'https://tseamcet.nic.in'},
+  {n:'WBJEE',i:'🌊',c:'Engineering',u:'https://wbjeeb.nic.in'},
+  {n:'KEAM',i:'🌴',c:'Engineering',u:'https://cee.kerala.gov.in'},
+  {n:'NEET UG',i:'🧬',c:'Medical',u:'https://neet.nta.nic.in'},
+  {n:'NEET PG',i:'🏥',c:'Medical',u:'https://nbe.edu.in'},
+  {n:'AIAPGET',i:'🌿',c:'Medical',u:'https://aiapget.nta.nic.in'},
+  {n:'CAT',i:'📈',c:'Management',u:'https://iimcat.ac.in'},
+  {n:'XAT',i:'📊',c:'Management',u:'https://xatonline.in'},
+  {n:'MAT',i:'📋',c:'Management',u:'https://mat.aima.in'},
+  {n:'CMAT',i:'📎',c:'Management',u:'https://cmat.nta.nic.in'},
+  {n:'SNAP',i:'📷',c:'Management',u:'https://www.snaptest.org'},
+  {n:'NMAT',i:'🏢',c:'Management',u:'https://www.nmat.org'},
+  {n:'IIFT',i:'🌐',c:'Management',u:'https://iift.nta.nic.in'},
+  {n:'TISSNET',i:'🏛',c:'Management',u:'https://admissions.tiss.edu'},
+  {n:'UPSC CSE',i:'⚖️',c:'Civil Services',u:'https://upsc.gov.in'},
+  {n:'UPSC CDS',i:'🎖',c:'Civil Services',u:'https://upsc.gov.in'},
+  {n:'UPPSC',i:'🏛',c:'Civil Services',u:'https://uppsc.up.nic.in'},
+  {n:'TNPSC',i:'🌴',c:'Civil Services',u:'https://www.tnpsc.gov.in'},
+  {n:'KPSC',i:'🌳',c:'Civil Services',u:'https://kpsc.kar.nic.in'},
+  {n:'MPSC',i:'🗺',c:'Civil Services',u:'https://mpsc.gov.in'},
+  {n:'BPSC',i:'🌾',c:'Civil Services',u:'https://bpsc.bih.nic.in'},
+  {n:'IBPS PO',i:'🏦',c:'Banking',u:'https://www.ibps.in'},
+  {n:'IBPS Clerk',i:'📂',c:'Banking',u:'https://www.ibps.in'},
+  {n:'SBI PO',i:'🏧',c:'Banking',u:'https://sbi.co.in/careers'},
+  {n:'SBI Clerk',i:'💳',c:'Banking',u:'https://sbi.co.in/careers'},
+  {n:'RBI Grade B',i:'🏛',c:'Banking',u:'https://www.rbi.org.in'},
+  {n:'NABARD',i:'🌾',c:'Banking',u:'https://www.nabard.org'},
+  {n:'SSC CGL',i:'🏛️',c:'SSC',u:'https://ssc.nic.in'},
+  {n:'SSC CHSL',i:'📝',c:'SSC',u:'https://ssc.nic.in'},
+  {n:'SSC MTS',i:'📮',c:'SSC',u:'https://ssc.nic.in'},
+  {n:'SSC JE',i:'⚙️',c:'SSC',u:'https://ssc.nic.in'},
+  {n:'SSC GD',i:'🛡',c:'SSC',u:'https://ssc.nic.in'},
+  {n:'SSC CPO',i:'👮',c:'SSC',u:'https://ssc.nic.in'},
+  {n:'RRB NTPC',i:'🚆',c:'Railway',u:'https://indianrailways.gov.in'},
+  {n:'RRB Group D',i:'🛤',c:'Railway',u:'https://indianrailways.gov.in'},
+  {n:'RRB ALP',i:'🚇',c:'Railway',u:'https://indianrailways.gov.in'},
+  {n:'NDA',i:'🎖️',c:'Defence',u:'https://upsc.gov.in'},
+  {n:'CDS',i:'🪖',c:'Defence',u:'https://upsc.gov.in'},
+  {n:'AFCAT',i:'✈️',c:'Defence',u:'https://afcat.cdac.in'},
+  {n:'Agniveer Army',i:'🔱',c:'Defence',u:'https://joinindianarmy.nic.in'},
+  {n:'Agniveer Navy',i:'⚓',c:'Defence',u:'https://www.joinindiannavy.gov.in'},
+  {n:'Agniveer AF',i:'🛩',c:'Defence',u:'https://agnipathvayu.cdac.in'},
+  {n:'CLAT',i:'⚖️',c:'Law',u:'https://consortiumofnlus.ac.in'},
+  {n:'AILET',i:'🏛',c:'Law',u:'https://nludelhi.ac.in'},
+  {n:'SLAT',i:'📜',c:'Law',u:'https://www.symlaw.ac.in'},
+  {n:'DU LLB',i:'🔏',c:'Law',u:'https://law.du.ac.in'},
+  {n:'IPMAT IIM-A',i:'🌟',c:'Integrated',u:'https://ipmat.iima.ac.in'},
+  {n:'IPMAT IIM-I',i:'✨',c:'Integrated',u:'https://ipmat.iimidr.ac.in'},
+  {n:'JIPMAT',i:'📐',c:'Integrated',u:'https://jipmat.nta.ac.in'},
+  {n:'DU JAT',i:'🎓',c:'Integrated',u:'https://du.ac.in'},
+  {n:'SET',i:'📚',c:'Integrated',u:'https://www.set-test.org'},
+  {n:'GATE',i:'🔬',c:'PG Entrance',u:'https://gate2025.iitr.ac.in'},
+  {n:'CSIR NET',i:'🧪',c:'PG Entrance',u:'https://csirnet.nta.nic.in'},
+  {n:'UGC NET',i:'🎓',c:'PG Entrance',u:'https://ugcnet.nta.nic.in'},
+  {n:'JEST',i:'🔭',c:'PG Entrance',u:'http://www.jest.org.in'},
+  {n:'IIT JAM',i:'📐',c:'PG Entrance',u:'https://jam.iitd.ac.in'},
+  {n:'NATA',i:'🏗',c:'Design/Arch',u:'https://www.nata.in'},
+  {n:'NID',i:'🎨',c:'Design/Arch',u:'https://admissions.nid.edu'},
+  {n:'NIFT',i:'👗',c:'Design/Arch',u:'https://admissions.nift.ac.in'},
+  {n:'CEED',i:'✏️',c:'Design/Arch',u:'https://ceed.iitb.ac.in'},
+  {n:'UCEED',i:'🖌',c:'Design/Arch',u:'https://uceed.iitb.ac.in'},
+  {n:'CUET UG',i:'🎓',c:'Others',u:'https://cuet.samarth.ac.in'},
+  {n:'CUET PG',i:'📗',c:'Others',u:'https://cuet.nta.nic.in'},
+  {n:'NCHM JEE',i:'🍽',c:'Others',u:'https://nchmjee.nta.nic.in'},
+  {n:'AIEED',i:'🏠',c:'Others',u:'https://www.aieed.com'},
+];
+
+function buildVault(){
+  const cats=[...new Set(EXAMS.map(e=>e.c))];
+  let html='';
+  cats.forEach(cat=>{
+    const list=EXAMS.filter(e=>e.c===cat);
+    const s=list.slice(0,6),m=list.slice(6);
+    const cid=cat.replace(/[\s/]/g,'-');
+    html+=`<div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:800;color:var(--sub);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase">${cat}</div>
+      <div class="eg">${s.map(e=>`<a class="ec" href="${e.u}" target="_blank"><div class="ei">${e.i}</div><div class="en">${e.n}</div><div class="ecat">${e.c}</div></a>`).join('')}</div>
+      ${m.length?`<div id="mx-${cid}" style="display:none"><div class="eg">${m.map(e=>`<a class="ec" href="${e.u}" target="_blank"><div class="ei">${e.i}</div><div class="en">${e.n}</div><div class="ecat">${e.c}</div></a>`).join('')}</div></div>
+      <button class="smb" style="margin-bottom:8px" onclick="togMore('${cid}',this)">+ Show ${m.length} More</button>`:''}
+    </div>`;
+  });
+  document.getElementById('vaultContent').innerHTML=html;
+}
+
+function togMore(id,btn){
+  const el=document.getElementById('mx-'+id);
+  if(el.style.display==='none'){el.style.display='block';btn.textContent='− Show Less';}
+  else{el.style.display='none';btn.textContent=btn.textContent.replace('Show Less',`Show More`);}
+}
+
+const PYQ=[
+  {n:'JEE Main',yrs:'2016 – 2026',ls:[
+    {l:'📄 Careers360 PDFs',u:'https://engineering.careers360.com/articles/jee-main-question-papers'},
+    {l:'📄 Embibe Papers',u:'https://www.embibe.com/exams/jee-main-question-papers/'},
+    {l:'📄 NTA Official',u:'https://nta.ac.in/Download/ExamReport/NTA_REPORT'},
+    {l:'📄 Vedantu Free',u:'https://www.vedantu.com/jee-main/jee-main-question-papers'},
+  ]},
+  {n:'JEE Advanced',yrs:'2014 – 2024',ls:[
+    {l:'📄 Official IIT PDFs',u:'https://jeeadv.ac.in/pastqps.html'},
+    {l:'📄 Careers360',u:'https://engineering.careers360.com/articles/jee-advanced-question-papers'},
+    {l:'📄 Embibe',u:'https://www.embibe.com/exams/jee-advanced-question-papers/'},
+  ]},
+  {n:'NEET UG',yrs:'2016 – 2026',ls:[
+    {l:'📄 Careers360 PDFs',u:'https://medicine.careers360.com/articles/neet-question-paper'},
+    {l:'📄 Embibe Papers',u:'https://www.embibe.com/exams/neet-previous-year-papers/'},
+    {l:'📄 Vedantu Free',u:'https://www.vedantu.com/neet/neet-previous-year-question-papers'},
+    {l:'📄 NTA Official',u:'https://neet.nta.nic.in'},
+  ]},
+  {n:'UPSC CSE',yrs:'2014 – 2024',ls:[
+    {l:'📄 UPSC Official',u:'https://upsc.gov.in/examinations/previous-question-papers'},
+    {l:'📄 Drishti IAS',u:'https://www.drishtiias.com/upsc-previous-year-papers'},
+    {l:'📄 Careers360',u:'https://www.careers360.com/upsc-cse-question-papers'},
+    {l:'📄 BYJU\'s',u:'https://byjus.com/ias/upsc-question-papers/'},
+  ]},
+  {n:'CAT',yrs:'2017 – 2023',ls:[
+    {l:'📄 2IIM Free PDFs',u:'https://www.2iim.com/cat-previous-year-papers.shtml'},
+    {l:'📄 Careers360',u:'https://www.careers360.com/cat-question-papers'},
+    {l:'📄 Embibe',u:'https://www.embibe.com/exams/cat-question-papers/'},
+    {l:'📄 BYJU\'s',u:'https://byjus.com/cat/cat-question-papers/'},
+  ]},
+  {n:'GATE',yrs:'2017 – 2024',ls:[
+    {l:'📄 Official IIT PDFs',u:'https://gate2025.iitr.ac.in/PreviousYearQPs.html'},
+    {l:'📄 Careers360',u:'https://www.careers360.com/gate-question-papers'},
+    {l:'📄 MADE EASY',u:'https://www.madeeasy.in/resources/gate-previous-year-papers.php'},
+    {l:'📄 Embibe',u:'https://www.embibe.com/exams/gate-question-papers/'},
+  ]},
+  {n:'SSC CGL',yrs:'2019 – 2024',ls:[
+    {l:'📄 Careers360 PDFs',u:'https://competition.careers360.com/articles/ssc-cgl-question-papers'},
+    {l:'📄 Adda247',u:'https://www.adda247.com/ssc-cgl-previous-year-papers/'},
+    {l:'📄 Embibe',u:'https://www.embibe.com/exams/ssc-cgl-previous-year-solution/'},
+  ]},
+  {n:'CLAT',yrs:'2018 – 2024',ls:[
+    {l:'📄 Consortium PDFs',u:'https://consortiumofnlus.ac.in/past-clat-papers.html'},
+    {l:'📄 LegalEdge',u:'https://legaledge.in/clat-previous-year-papers/'},
+    {l:'📄 Careers360',u:'https://www.careers360.com/clat-question-papers'},
+  ]},
+  {n:'IPMAT',yrs:'2020 – 2024',ls:[
+    {l:'📄 IIM Indore Official',u:'https://www.iimidr.ac.in/academic-programmes/five-year-ipmat/old-question-papers/'},
+    {l:'📄 Careers360',u:'https://www.careers360.com/ipmat-question-papers'},
+    {l:'📄 Career Launcher',u:'https://www.careerlauncher.com/ipmat/question-paper.html'},
+  ]},
+  {n:'NDA',yrs:'2019 – 2024',ls:[
+    {l:'📄 UPSC Official',u:'https://upsc.gov.in/examinations/previous-question-papers'},
+    {l:'📄 Careers360',u:'https://www.careers360.com/nda-question-papers'},
+    {l:'📄 Adda247',u:'https://www.adda247.com/nda-previous-year-papers/'},
+  ]},
+  {n:'IBPS PO',yrs:'2019 – 2023',ls:[
+    {l:'📄 Oliveboard PDFs',u:'https://www.oliveboard.in/ibps-po-previous-year-papers/'},
+    {l:'📄 Careers360',u:'https://www.careers360.com/ibps-po-question-papers'},
+    {l:'📄 Adda247',u:'https://www.adda247.com/ibps-po-previous-year-papers/'},
+  ]},
+  {n:'SBI PO',yrs:'2019 – 2023',ls:[
+    {l:'📄 Oliveboard',u:'https://www.oliveboard.in/sbi-po-previous-year-papers/'},
+    {l:'📄 Careers360',u:'https://www.careers360.com/sbi-po-question-papers'},
+    {l:'📄 Embibe',u:'https://www.embibe.com/exams/sbi-po-previous-year-papers/'},
+  ]},
+  {n:'CUET UG',yrs:'2022 – 2024',ls:[
+    {l:'📄 Careers360',u:'https://school.careers360.com/articles/cuet-question-papers'},
+    {l:'📄 Embibe',u:'https://www.embibe.com/exams/cuet-question-papers/'},
+    {l:'📄 Vedantu',u:'https://www.vedantu.com/cuet/cuet-previous-year-question-papers'},
+  ]},
+  {n:'BITSAT',yrs:'2020 – 2024',ls:[
+    {l:'📄 Careers360',u:'https://engineering.careers360.com/articles/bitsat-question-paper'},
+    {l:'📄 Embibe',u:'https://www.embibe.com/exams/bitsat-previous-year-question-papers/'},
+    {l:'📄 Vedantu',u:'https://www.vedantu.com/bitsat/bitsat-previous-year-question-papers'},
+  ]},
+  {n:'XAT',yrs:'2020 – 2024',ls:[
+    {l:'📄 Careers360',u:'https://www.careers360.com/xat-question-papers'},
+    {l:'📄 2IIM',u:'https://www.2iim.com/xat-previous-year-papers.shtml'},
+    {l:'📄 Embibe',u:'https://www.embibe.com/exams/xat-question-papers/'},
+  ]},
+  {n:'UGC NET',yrs:'2019 – 2024',ls:[
+    {l:'📄 NTA Official',u:'https://ugcnet.nta.nic.in'},
+    {l:'📄 Careers360',u:'https://www.careers360.com/ugc-net-question-papers'},
+    {l:'📄 Adda247',u:'https://www.adda247.com/ugc-net-previous-year-papers/'},
+  ]},
+  {n:'CSIR NET',yrs:'2019 – 2024',ls:[
+    {l:'📄 NTA Official',u:'https://csirnet.nta.nic.in'},
+    {l:'📄 Careers360',u:'https://www.careers360.com/csir-net-question-papers'},
+    {l:'📄 Embibe',u:'https://www.embibe.com/exams/csir-net-question-papers/'},
+  ]},
+  {n:'SSC CHSL',yrs:'2020 – 2024',ls:[
+    {l:'📄 Careers360',u:'https://competition.careers360.com/articles/ssc-chsl-question-papers'},
+    {l:'📄 Adda247',u:'https://www.adda247.com/ssc-chsl-previous-year-question-papers/'},
+    {l:'📄 Embibe',u:'https://www.embibe.com/exams/ssc-chsl-previous-year-papers/'},
+  ]},
+];
+function buildPYQ(){
+  document.getElementById('pyqC').innerHTML=PYQ.map(p=>`
+    <div class="pyq">
+      <div><div class="pn">${p.n}</div><div class="py">${p.yrs}</div></div>
+      <div class="pyqls">${p.ls.map(l=>`<a href="${l.u}" target="_blank">${l.l}</a>`).join('')}</div>
+    </div>`).join('');
+}
+
+// ---- NEWS ----
+async function getNews(){
+  const out=document.getElementById('newsOut');
+  out.innerHTML='<p style="font-size:12px;color:var(--sub)">⏳ Fetching real news...</p>';
+  const exam=(cur.profile?.exam||'JEE').replace(/\s+/g,'+');
+
+  async function fetchRSS(query){
+    const rss=encodeURIComponent('https://news.google.com/rss/search?q='+encodeURIComponent(query+' exam India')+'&hl=en-IN&gl=IN&ceid=IN:en');
+    const url='https://api.rss2json.com/v1/api.json?rss_url='+rss+'&count=5';
+    const r=await fetch(url,{signal:AbortSignal.timeout(6000)});
+    const d=await r.json();
+    return d.items||[];
+  }
+
+  try{
+    const [a,b,c]=await Promise.allSettled([
+      fetchRSS(exam+' 2026'),
+      fetchRSS('JEE NEET exam 2026'),
+      fetchRSS('UPSC SSC IBPS exam 2026')
+    ]);
+
+    const all=[
+      ...(a.status==='fulfilled'?a.value:[]),
+      ...(b.status==='fulfilled'?b.value:[]),
+      ...(c.status==='fulfilled'?c.value:[]),
+    ];
+
+    if(!all.length) throw new Error('No articles found');
+
+    const seen=new Set();
+    const items=all.filter(i=>{
+      if(seen.has(i.title)||!i.title) return false;
+      seen.add(i.title); return true;
+    }).sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate)).slice(0,8);
+
+    const tags=['JEE','NEET','UPSC','CAT','GATE','SSC','IBPS','NDA','CLAT','CUET','IPMAT','BITSAT','NMAT','XAT'];
+
+    out.innerHTML=items.map(item=>{
+      const date=item.pubDate?new Date(item.pubDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'';
+      const desc=(item.description||'').replace(/<[^>]+>/g,'').substring(0,130).trim();
+      const tag=tags.find(t=>item.title.toUpperCase().includes(t))||'Exam';
+      return `<a href="${item.link}" target="_blank" style="text-decoration:none">
+        <div class="nc" style="cursor:pointer">
+          <div class="ntag">${tag}</div>
+          <div class="ntit">${item.title}</div>
+          <div class="ndesc">${desc}${desc.length===130?'...':''}</div>
+          <div class="ndate">📅 ${date} &nbsp;<span style="color:var(--accent);font-size:10px">→ Read</span></div>
+        </div></a>`;
+    }).join('');
+
+  }catch(e){
+    out.innerHTML=`<div style="text-align:center;padding:20px">
+      <p style="font-size:13px;color:var(--text);font-weight:700;margin-bottom:8px">📡 Couldn't fetch live news</p>
+      <p style="font-size:11px;color:var(--sub);margin-bottom:14px">Check internet connection</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+        <a href="https://www.careers360.com" target="_blank" style="padding:8px 14px;background:var(--accent);color:#fff;border-radius:6px;font-size:11px;font-weight:700;text-decoration:none">Careers360 →</a>
+        <a href="https://www.shiksha.com" target="_blank" style="padding:8px 14px;background:var(--accent);color:#fff;border-radius:6px;font-size:11px;font-weight:700;text-decoration:none">Shiksha →</a>
+        <a href="https://www.examresults.net" target="_blank" style="padding:8px 14px;background:var(--accent);color:#fff;border-radius:6px;font-size:11px;font-weight:700;text-decoration:none">Results →</a>
+      </div>
+    </div>`;
+  }
+}
+
+// ---- CHAT SESSIONS ----
+// cur.chats = [{id, name, msgs:[{t,tp}]}]
+// cur.activeChatId = id of current chat
+
+function initChats(){
+  if(!cur.chats||!cur.chats.length){
+    cur.chats=[{id:Date.now(),name:'Chat 1',msgs:[]}];
+    cur.activeChatId=cur.chats[0].id;
+    saveAll();
+  }
+  if(!cur.activeChatId) cur.activeChatId=cur.chats[0].id;
+}
+
+function getActiveChat(){
+  return cur.chats.find(c=>c.id===cur.activeChatId)||cur.chats[0];
+}
+
+function loadChatUI(){
+  initChats();
+  const chat=getActiveChat();
+  document.getElementById('curChatName').textContent='💬 '+chat.name;
+  const msgBox=document.getElementById('msgs');
+  msgBox.innerHTML='';
+  if(!chat.msgs.length){
+    renderMsg(`Hey ${cur.name}! 👋 Ask me anything — study questions, exam tips, concepts, or just chat!`,'b');
+  } else {
+    chat.msgs.forEach(m=>renderMsg(m.t,m.tp));
+  }
+  msgBox.scrollTop=99999;
+  renderChatList();
+}
+
+function renderChatList(){
+  initChats();
+  const el=document.getElementById('chatList');
+  if(!el)return;
+  el.innerHTML=cur.chats.map(c=>`
+    <div onclick="switchChat(${c.id})" style="padding:7px 12px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border);background:${c.id===cur.activeChatId?'rgba(102,126,234,.12)':'transparent'};transition:.2s">
+      <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${c.id===cur.activeChatId?'var(--accent)':'var(--text)'};font-weight:${c.id===cur.activeChatId?'700':'400'}">💬 ${c.name}</span>
+      <button onclick="deleteChat(${c.id});event.stopPropagation()" style="background:none;border:none;cursor:pointer;font-size:11px;color:#f00;opacity:0.6;padding:0 2px" title="Delete">🗑</button>
+    </div>
+  `).join('');
+}
+
+function toggleChatList(){
+  const el=document.getElementById('chatList');
+  el.classList.toggle('hidden');
+}
+
+function newChat(){
+  initChats();
+  const n=cur.chats.length+1;
+  const chat={id:Date.now(),name:'Chat '+n,msgs:[]};
+  cur.chats.push(chat);
+  cur.activeChatId=chat.id;
+  saveAll();
+  document.getElementById('chatList').classList.add('hidden');
+  loadChatUI();
+}
+
+function switchChat(id){
+  cur.activeChatId=id;
+  saveAll();
+  document.getElementById('chatList').classList.add('hidden');
+  loadChatUI();
+}
+
+function deleteChat(id){
+  if(cur.chats.length<=1){alert("Can't delete the only chat!");return;}
+  if(!confirm('Delete this chat?'))return;
+  cur.chats=cur.chats.filter(c=>c.id!==id);
+  if(cur.activeChatId===id) cur.activeChatId=cur.chats[cur.chats.length-1].id;
+  saveAll();
+  renderChatList();
+  loadChatUI();
+}
+
+function renameChat(id,el){
+  const cur2=el.textContent.replace('💬 ','').trim();
+  const newName=prompt('Rename chat:',cur2);
+  if(!newName||!newName.trim())return;
+  const chat=cur.chats.find(c=>c.id===id);
+  if(chat){chat.name=newName.trim();saveAll();loadChatUI();}
+}
+
+// ---- CHAT SEND ----
+// ---- CALCULATOR TOOL ----
+async function safeCalc(expr){
+  // load mathjs on demand
+  if(typeof math==='undefined'){
+    await ldScript('https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.1/math.min.js');
+  }
+  try{
+    const result=math.evaluate(expr);
+    return String(result);
+  }catch(e){
+    return 'Error: '+e.message;
+  }
+}
+
+const CALC_TOOL={
+  type:'function',
+  function:{
+    name:'calculate',
+    description:'Accurately evaluate any mathematical expression. Use this for ALL arithmetic, algebra, fractions, powers, square roots, trig, logarithms. ALWAYS use this tool instead of computing manually.',
+    parameters:{
+      type:'object',
+      properties:{
+        expression:{
+          type:'string',
+          description:'Math expression to evaluate. Examples: "-9+2", "sqrt(16)", "2^10", "sin(pi/2)", "log(100)", "(3/4)*8"'
+        },
+        explanation:{
+          type:'string',
+          description:'Brief explanation of what you are calculating and why'
+        }
+      },
+      required:['expression']
+    }
+  }
+};
+
+async function sendMsg(){
+  const txt=document.getElementById('cIn').value.trim();
+  if(!txt)return;
+  addMsg(txt,'u');
+  document.getElementById('cIn').value='';
+  const k=document.getElementById('apiI').value.trim();
+  if(!k){addMsg('⚠️ Paste your Cohere API key first!','b');return;}
+
+  // auto-name chat from first message
+  const chat=getActiveChat();
+  if(chat.msgs.filter(m=>m.tp==='u').length===1){
+    chat.name=txt.length>30?txt.substring(0,30)+'…':txt;
+    saveAll();
+    document.getElementById('curChatName').textContent='💬 '+chat.name;
+    renderChatList();
+  }
+
+  // show typing indicator
+  const typingId='typing_'+Date.now();
+  const typingEl=document.createElement('div');
+  typingEl.className='msg b';typingEl.id=typingId;
+  typingEl.innerHTML='<span style="opacity:.6">🔢 Thinking...</span>';
+  document.getElementById('msgs').appendChild(typingEl);
+  document.getElementById('msgs').scrollTop=99999;
+
+  try{
+    const exam=cur.profile?.exam||'';
+    const cl=cur.profile?.cl||'';
+    const inst=cur.profile?.inst||'';
+    const history=chat.msgs.slice(-14).map(m=>({role:m.tp==='u'?'user':'assistant',content:m.t}));
+
+    // Build rich exam knowledge from profile
+    const EXAM_INFO={
+      // ===== ENGINEERING =====
+      'JEE Main':'NTA conducts twice (Jan+Apr). 300 marks. Physics+Chemistry+Math 100 each. 75 Qs total. MCQ+Numerical type. Class 11-12 NCERT. Time: 3hrs. Negative marking -1 for MCQ. Gateway to NITs/IIITs/GFTIs. Cutoff varies 85-95 percentile for top NITs.',
+      'JEE Advanced':'IITs conduct (rotating). 2 papers x 3hrs. PCM. Only top 2.5 lakh JEE Main qualifiers eligible. Integer type, multi-correct, paragraph questions. One of India toughest. 6 IITs, ~17000 seats. Study HC Verma, Irodov, OP Tandon.',
+      'BITSAT':'BITS Pilani online. Physics+Chemistry+Math/Bio+English+Logical Reasoning. 390 marks. 3hrs. No negative for bonus 12 Qs. Fast speed required. 300+ usually needed for CS BITS Pilani.',
+      'VITEEE':'VIT online. PCM/PCB+English+Aptitude. 125 Qs, 150 min. No negative marking. Good backup for NIT-level students.',
+      'SRMJEEE':'SRM University. PCM/PCB. Online. No negative. Multiple slots. Good private college option.',
+      'COMEDK':'Karnataka private engineering. PCM. 180 Qs, 3hrs. Only Karnataka/India candidates. Good for RV, MSRIT, PES.',
+      'MHT CET':'Maharashtra state engineering/pharmacy. PCM or PCB. 200 marks. Based on Maharashtra HSC syllabus. Compulsory for govt engineering colleges in MH.',
+      'KCET':'Karnataka. PCM. 180 marks. Only for Karnataka domicile. Essential for RV, BMSCE, MSRIT free seats.',
+      'WBJEE':'West Bengal engineering. PCM. 200 marks. 2 papers. Calculus-heavy. For Jadavpur, IIEST etc.',
+      'AP EAMCET':'Andhra Pradesh. JNTU conducts. PCM or PCB. For AP engineering and agriculture. Rank determines college.',
+      'TS EAMCET':'Telangana version of EAMCET. JNTU Hyderabad. PCM/PCB. OSMANIA, JNTU, etc.',
+      'KEAM':'Kerala. PCM only. Offline. For NIT Calicut, CET Trivandrum, GEC colleges.',
+      'GUJCET':'Gujarat state engineering. Physics+Chemistry+Math/Bio. OMR based. For Gujarat government engineering colleges.',
+      'UPCET':'Uttar Pradesh. PCM. For AKTU-affiliated colleges. Formerly UPSEE.',
+      'OJEE':'Odisha. PCM. For Odisha engineering colleges including ITER, CET.',
+      'BCECE':'Bihar engineering entrance. PCM. For Bihar colleges.',
+      'Assam CEE':'Assam state engineering. PCM. For Assam Engineering College, JEC etc.',
+      'GCET':'Goa engineering entrance. PCM. Small state exam. For BITS Goa (separate), GEC.',
+      'HP CET':'Himachal Pradesh. PCM. For NIT Hamirpur (separate), state colleges.',
+      'CUSAT CAT':'Cochin University of Science and Technology. Math heavy. Good for CS/IT Kerala.',
+      'Manipal MET':'Manipal University. PCM. Online. Multiple dates. Good private college.',
+      'LPU NEST':'Lovely Professional University. Online. PCM. No negative. Merit scholarships.',
+      'KIIT':'Kalinga Institute. PCM. Online. Good private college in Odisha.',
+      // ===== MEDICAL =====
+      'NEET UG':'NTA conducts. Single offline paper. 720 marks. Biology 360 (Botany 180+Zoology 180) + Physics 180 + Chemistry 180. 200 Qs (180 attempt). OMR. For MBBS/BDS/BAMS/BUMS/BHMS/BVSc/BPT. AIQ+State quota seats. NCERT is Bible.',
+      'NEET PG':'NBE conducts. For MD/MS/PG Diploma/DNB. 200 MCQs, 3.5hrs, CBT. Based on complete MBBS curriculum. Harrison, Robbins key books.',
+      'FMGE':'Foreign Medical Graduates Examination. For doctors who did MBBS abroad. NBE. 300 MCQs in 2 shifts. Pass rate ~20%. Must pass for Indian license.',
+      'NEET MDS':'MDS admission. 240 MCQs, 3hrs. NBE. Clinical+preclinical dental subjects.',
+      'AIAPGET':'Ayurveda, Yoga, Unani, Siddha, Homeopathy PG entrance. NTA. 100 Qs, 90 min.',
+      'INICET':'AIIMS PG entrance for AIIMS institutes. Highly competitive. MBBS graduates.',
+      'NEET SS':'Super specialty medical. DM/MCh admission. NBE. Subject-specific.',
+      // ===== MANAGEMENT =====
+      'CAT':'IIM entrance. 3 sections: VARC(24 Qs)+DILR(20 Qs)+QA(22 Qs)=66 Qs total. 120 min. Sectional time limits. Scaled scores 0-99 percentile. For IIM A/B/C/L/K/I and 100+ B-schools. Quant+LRDI+Reading Comprehension critical.',
+      'XAT':'XLRI Jamshedpur. 4 sections: Verbal+Decision Making+QA+GK(not scored). 105 Qs, 180 min + Essay 10 min. Decision Making unique section. For XLRI, XIMB, SPJIMR.',
+      'MAT':'AIMA. 200 Qs, 150 min. Language Comp+Math Skills+Data Analysis+Intelligence+GK. Accepted by 600+ B-schools. 4 modes: online/offline/IBT/CBT.',
+      'CMAT':'NTA. 4 sections+Innovation section. 25 Qs each, 180 min. For AICTE-approved B-schools. Maharashtra B-schools heavily use CMAT.',
+      'SNAP':'Symbiosis. 60 Qs, 60 min. General English+Analytical+Quantitative. Computer-based. For SIBM, SCMHRD, SIIB, 14 Symbiosis institutes.',
+      'NMAT':'GMAC (GMAT body). 108 Qs, 120 min. Language+Quantitative+Logical. Multiple attempts (3) allowed. For NMIMS, ISB, SPJIMR, Shiv Nadar.',
+      'IIFT':'NTA. English+QA+DI+GK. Specific to IIFT Delhi/Kolkata/Kakinada. International business focus.',
+      'TISSNET':'TISS Mumbai. 100 Qs, 100 min. English+Math+Logical+GK&Current Affairs. For social work, HRM, development programmes.',
+      'MICAT':'MICA Ahmedabad. Psychometric+Divergent Thinking+Verbal+Quantitative+General Awareness+Descriptive. For marketing/communication.',
+      'IRMASAT':'IRMA Anand. For rural management. English+Quant+Reasoning+Issues of Social Concern.',
+      'ATMA':'AIMS. 6 sections, 3hrs. Verbal+Analytical+QA. For 700+ B-schools. Multiple dates.',
+      'IBSAT':'ICFAI Business School. Online. Verbal Ability+Reading Comp+Quantitative+Data Adequacy+Analytical Reasoning.',
+      'KMAT Karnataka':'Karnataka MBA/MCA entrance. Verbal+Quant+Reasoning. For Karnataka MBA colleges.',
+      'NMIMS NPAT':'NMIMS common entrance. For BBA/BComm/BSc Finance. English+Math+Logical.',
+      // ===== CIVIL SERVICES =====
+      'UPSC CSE':'Most prestigious Indian exam. 3 stages. Prelims: GS Paper 1 (100 Qs, 200 marks) + CSAT (80 Qs, 200 marks, qualifying). Mains: 9 papers (Essay+GS1+GS2+GS3+GS4+Optional1+Optional2+Language x2). Interview 275 marks. Total 2025 marks. Covers History, Geography, Polity, Economy, Environment, Ethics, Current Affairs. 2-3 year preparation typical.',
+      'UPSC CAPF':'Central Armed Police Forces AC. Written(250 marks)+Physical+Interview. General Studies+Reasoning+Elementary Math+English.',
+      'UPSC CDS':'Combined Defence Services. 3 exams/year. English(100)+GK(100)+Math(100). Then SSB interview. For IMA, INA, AFA, OTA.',
+      'UPSC NDA':'National Defence Academy. 2 papers: Math(300)+GAT(600). Physical fitness tests. SSB. For Army/Navy/Air Force. 10+2 appearing/pass.',
+      'UPPSC PCS':'Uttar Pradesh. Prelims(GS+CSAT)+Mains(8 papers)+Interview. One of largest state PSC exams. 250+ services.',
+      'BPSC':'Bihar Public Service Commission. Prelims(150 marks)+Mains+Interview. Bihar current affairs important.',
+      'MPSC':'Maharashtra. Prelims(200 marks)+Mains(800 marks)+Interview. Marathi language papers.',
+      'TNPSC Group 1':'Tamil Nadu top services. Collector/DSP level. GS+Aptitude+Tamil. Prelims+Mains+Interview.',
+      'TNPSC Group 2':'Tamil Nadu. Assistant/Sub-Registrar etc. GS+Aptitude+Tamil. Large vacancies.',
+      'KPSC KAS':'Karnataka Administrative Service. GS+Kannada+Optional. Prelims+Mains+Interview.',
+      'RPSC RAS':'Rajasthan Administrative Service. GS+Hindi+Optional. Rajasthan current affairs heavy.',
+      'APPSC':'Andhra Pradesh. Group 1/2/3 services. Telugu important.',
+      'TSPSC':'Telangana. Similar to APPSC. Telugu+GS+Optional.',
+      'GPSC':'Gujarat. GS+Gujarati+Optional. For Gujarat civil services.',
+      'JPSC':'Jharkhand. GS+Hindi+Optional. Jharkhand tribal affairs important.',
+      'CGPSC':'Chhattisgarh. State services. GS+Hindi. CG tribal/forest/mineral economy focus.',
+      'MPPSC':'Madhya Pradesh. GS+Hindi+Optional. MP history, geography, culture important.',
+      'WBPSC':'West Bengal. GS+Bengali+Optional. WB history/culture/economy important.',
+      'PPSC':'Punjab. GS+Punjabi+Optional. Punjab current affairs, agriculture important.',
+      'HPSC HCS':'Haryana Civil Service. GS+Hindi. Haryana agriculture, economy focus.',
+      'UKPSC':'Uttarakhand. GS+Hindi. Hill state issues, forest, tourism, hydropower.',
+      'OPSC':'Odisha. GS+Odia. Tribal welfare, Odisha culture, POSCO/industry important.',
+      'APSC Assam':'Assam Civil Service. GS+Assamese. NE India issues, tea industry, insurgency.',
+      'JKPSC':'Jammu & Kashmir. Post-370 abrogation changes. GS+Hindi/Urdu.',
+      // ===== BANKING =====
+      'IBPS PO':'Banking PO at 11 PSU banks. Prelims: English(30)+Reasoning(35)+Quant(35)=100 marks, 60 min. Mains: English+Reasoning+Quant+GA+Computer=200 marks+25 marks descriptive. Interview. Sectional cutoffs.',
+      'IBPS Clerk':'Clerk/cashier at PSU banks. Prelims: English+Reasoning+Quant=100 marks, 60 min. Mains: English+Reasoning+Quant+GA+Computer. No interview. Large vacancies yearly.',
+      'IBPS SO':'Specialist Officer. IT/Law/HR/Marketing/Agriculture/Credit Officer. Prelims: English+Reasoning+Quant. Mains: Professional Knowledge in chosen field.',
+      'IBPS RRB PO':'Regional Rural Bank PO. Prelims: Reasoning(40)+Quant(40)=80 marks. Mains: Reasoning+Quant+English/Hindi+GK+Computer. Interview.',
+      'IBPS RRB Clerk':'RRB Office Assistant. No interview. Prelims+Mains. Hindi/Regional language important.',
+      'SBI PO':'State Bank of India. Most prestigious banking exam. Prelims+Mains+GD+Interview. Prelims: English+Reasoning+Quant=100, 60min. Mains: Data Interpretation+Reasoning+English+GK+Descriptive. Very competitive.',
+      'SBI Clerk':'SBI Junior Associates. Prelims+Mains. No interview. Language proficiency tested.',
+      'SBI SO':'Specialist Officer. Deputy Manager in IT/Finance/HR. Tier 1+Tier 2+Interview. Domain knowledge critical.',
+      'RBI Grade B':'Reserve Bank of India. Most prestigious banking. Phase 1: GA+English+Quant+Reasoning(200 marks). Phase 2: Economic Analysis+English+Finance & Management(300 marks). Interview. Only 200-300 selected yearly.',
+      'RBI Assistant':'RBI customer service. Prelims+Mains. English+Reasoning+Numerical. Limited vacancies.',
+      'NABARD Grade A':'Agriculture/Rural Development. Phase 1+2+Interview. Economic Analysis+Agriculture+Rural Dev+English+Quant.',
+      'NABARD Grade B':'Manager. Finance+Management focus. RBI Grade B level difficulty.',
+      'SEBI Grade A':'Securities regulator officer. Phase 1+2+Interview. Finance+Commerce+Law knowledge essential. Very tough.',
+      'LIC AAO':'Life Insurance Corporation. Assistant Administrative Officer. Prelims+Mains+Interview. Insurance knowledge+general aptitude.',
+      'LIC HFL':'LIC Housing Finance. Assistant+Associate level. Reasoning+Quant+English+GK.',
+      'NIACL':'New India Assurance. Administrative Officer+Assistant. Prelims+Mains. Insurance+General aptitude.',
+      'NICL':'National Insurance. Similar to NIACL. Assistant level.',
+      'UIIC':'United India Insurance. Administrative Officer. GK+English+Reasoning+Quant.',
+      'BOB PO':'Bank of Baroda PO. PGDBF course. English+Reasoning+Quant+GA. 12-month bond.',
+      'Canara Bank PO':'PGDBF. Similar to BOB PO structure.',
+      // ===== SSC =====
+      'SSC CGL':'Combined Graduate Level. 4 Tiers. Tier 1: GK+Reasoning+Quant+English=200 marks, 60 min. Tier 2: Math+English+Stats/Finance(optional). Tier 3: Descriptive 100 marks. Tier 4: Skill test. For Group B/C: Inspector/Auditor/Tax Officer/CSS etc.',
+      'SSC CHSL':'10+2 level. For LDC/DEO/PA/SA. Tier 1(60 min CBT)+Tier 2(Descriptive)+Skill Test. English+Reasoning+GK+Quant.',
+      'SSC MTS':'Matriculation level. Non-Technical posts. Tier 1: 150 marks, 90 min. Tier 2: Descriptive 50 marks. GK+Reasoning+Quant+English.',
+      'SSC JE':'Junior Engineer Civil/Electrical/Mechanical/Quantity Surveying. Tier 1(200 marks)+Tier 2(300 marks). Technical knowledge essential.',
+      'SSC GD':'General Duty Constable in CISF/BSF/CRPF/SSB/ITBP/AR/SSF/NIA. CBT+PET/PST+Medical+Document Verification. Physical fitness critical.',
+      'SSC CPO':'Central Police Organisations. SI/ASI in Delhi Police/CAPF. Tier 1+PET+Tier 2+Medical. Physical fitness required.',
+      'SSC Steno':'Stenographer Grade C and D. Typing speed test+CBT. English+GK+Reasoning.',
+      'SSC JHT':'Junior Hindi Translator/Pradhyapak. Hindi+English translation. Subject expertise.',
+      // ===== RAILWAYS =====
+      'RRB NTPC':'Non-Technical Popular Categories. Multiple posts: Station Master/Guard/Clerk/TA/CA etc. CBT 1(100 marks,90 min)+CBT 2+Skill Test(where applicable). Math+GI+GS. Graduate level.',
+      'RRB Group D':'Entry level railway. Track Maintainer/Helper/Porter etc. 10th pass. CBT(100 Qs,90 min)+PET+Medical. Math+GI+GS. Lakhs of vacancies.',
+      'RRB ALP':'Assistant Loco Pilot+Technician. CBT 1+CBT 2+CBAT(Aptitude). Technical trades diploma/ITI required.',
+      'RRB JE':'Junior Engineer. Civil/Electrical/Mechanical/IT/Signal etc. CBT 1+CBT 2. Technical knowledge.',
+      'RRB Paramedical':'Pharmacist/Nurse/Pathologist etc. CBT. Professional qualification needed.',
+      'RRC Group D':'Railway Recruitment Cell Group D. Similar to RRB Group D.',
+      // ===== DEFENCE =====
+      'NDA':'National Defence Academy. UPSC conducts twice yearly. 2 papers: Math(120 Qs,300 marks)+GAT(150 Qs,600 marks). Total 900 marks. Followed by SSB interview+medical. 10+2 or appearing. Unmarried males+females now. 3-year NDA course at Pune.',
+      'CDS':'Combined Defence Services. UPSC twice yearly. English(100)+GK(100)+Math(100 only for IMA/INA/AFA). SSB interview. Graduate. For IMA/INA/AFA/OTA.',
+      'AFCAT':'Air Force Common Admission Test. IAF conducts. Verbal+Numerical+Reasoning+Military Aptitude(300 marks). AFSB interview. Graduate.',
+      'Agniveer Army':'Short Service 4 years. Written test+Physical+Medical. Agnipath scheme. Category specific: General Duty/Technical/Clerk/SKT/Tradesman.',
+      'Agniveer Navy':'4-year service. SSR(Science)+MR(10th pass) categories. Written+Physical+Medical.',
+      'Agniveer Air Force':'Science/Commerce/Arts streams. CBT+Physical+Medical. Various trades.',
+      'Indian Coast Guard':'Assistant Commandant GD/Technical/Law. CBT+PSB+Final Selection Board. 10+2/Graduate.',
+      'MNS':'Military Nursing Service. For B.Sc Nursing graduates. Written+Interview. Army nursing officer.',
+      // ===== LAW =====
+      'CLAT':'Common Law Admission Test. Consortium of NLUs. Offline. 120 Qs, 120 min. English(22)+Current Affairs&GK(28)+Legal Reasoning(35)+Logical Reasoning(28)+Quantitative(7). For NLSIU Bangalore, NALSAR, NLU Delhi and 22 NLUs.',
+      'AILET':'All India Law Entrance Test. Only for NLU Delhi. 150 Qs, 90 min. English+GK+Legal Aptitude+Reasoning+Elementary Math.',
+      'SLAT':'Symbiosis Law School. 60 Qs, 60 min. Logical Reasoning+Legal Reasoning+Analytical Reasoning+Reading Comp+GK.',
+      'DU LLB':'Delhi University 3-year LLB. English+GK+Legal Aptitude+Reasoning+Elementary Math. Campus Law Centre/Faculty of Law.',
+      'CLAT PG':'For LLM admissions at NLUs. Graduate CLAT pattern.',
+      'AP LAWCET':'Andhra Pradesh LLB entrance. Telugu law colleges.',
+      'TS LAWCET':'Telangana LLB entrance. Telangana law colleges.',
+      'MH CET Law':'Maharashtra 3-year/5-year law entrance. Logical Reasoning+English+GK+Legal Aptitude.',
+      // ===== INTEGRATED PROGRAMS =====
+      'IPMAT':'5-year Integrated Programme in Management at IIM Indore+Rohtak. NTA. Quantitative Ability(40 MCQ+10 SA)+Verbal Ability(40 MCQ)=90 Qs. 90 min. Class 12 pass. Leads to MBA from IIM.',
+      'JIPMAT':'IPM at IIM Jammu+IIM Bodh Gaya. NTA. Similar to IPMAT. QA+VA+Logical Reasoning.',
+      'DU JAT':'Delhi University Joint Admission Test. For BA Hons Business Economics+BMS+BBE. Maths+English+Reasoning+GK. 90 Qs, 90 min.',
+      'BHU UET':'Banaras Hindu University UG entrance. Various courses. GS+Subject-specific.',
+      'CUET UG':'Common University Entrance Test. NTA. For 260+ central/state/private universities including DU, JNU, BHU, AMU. Domain subjects+General Test. Replaced many individual entrance tests.',
+      'NMIMS NPAT UG':'NMIMS Common Entrance. BBA/BComm/BSc. Mathematical Skills+Language Skills+Logical Reasoning+General Awareness.',
+      'SET Symbiosis':'Symbiosis UG entrance. BBA/BCA/BSc etc. Symbiosis institutes Pune/Nashik/Bangalore etc.',
+      'GGSIPU CET':'Guru Gobind Singh IP University Delhi. Various programs. BBA/BCA/LLB/B.Tech etc.',
+      // ===== PG ENGINEERING & RESEARCH =====
+      'GATE':'Graduate Aptitude Test in Engineering. IITs+IISc. 65 Qs, 100 marks, 3 hrs. GA(15)+Subject(85). 30 papers: CS/ECE/ME/CE/EE/CH/IN etc. For M.Tech IITs/NITs, PSU jobs (ONGC/BHEL/NTPC/HPCL etc), PhD. Score valid 3 years.',
+      'JAM':'Joint Admission for MSc. IITs+IISc. 7 subjects: Physics/Chemistry/Math/Statistics/Economics/Geology/Biotechnology. CBT. For IIT MSc programs.',
+      'JEST':'Joint Entrance Screening Test. Physics+Theoretical CS. For PhD at TIFR/SNBNCBS/IMSc/IISER/NCRA etc.',
+      'TIFR GS':'TIFR Graduate School. Physics/Chemistry/Biology/CS/Math. For TIFR research programs.',
+      'NBHM':'National Board for Higher Mathematics. For MSc/PhD Math at top institutes. Scholarship exam.',
+      'CSIR NET':'CSIR-UGC National Eligibility Test. Life Sciences/Chemical/Mathematical/Physical/Earth Sciences. JRF+Lectureship. NTA. Twice yearly.',
+      'UGC NET':'University Grants Commission National Eligibility Test. For Assistant Professor/JRF in 83 subjects. NTA. Paper 1: Teaching Aptitude+Reasoning+ICT(50 Qs)+Paper 2: Subject-specific(100 Qs).',
+      'PGCET':'Karnataka PG Common Entrance Test. For MBA/MCA/M.Tech at Karnataka colleges.',
+      // ===== DESIGN & ARCHITECTURE =====
+      'NATA':'National Aptitude Test in Architecture. CoA. Test 1 and Test 2. Drawing test+Mathematics+Physics+Aesthetic Sensitivity. For B.Arch at SPA and other architecture colleges.',
+      'NID':'National Institute of Design. Prelims(written, reasoning, drawing)+Mains(Studio Test). Creative aptitude. Ahmedabad/Gandhinagar/Jorhat/Amaravati/Jorhat campus.',
+      'NIFT':'National Institute of Fashion Technology. CAT(Creative Ability Test)+GAT(General Ability Test)+Group Discussion+Interview(shortlisted). For B.Des/B.FTech at 17 NIFT campuses.',
+      'CEED':'Common Entrance Exam for Design. IITs+IISc. Part A(Visualization+Env Design+Creative+Writing)+Part B(Drawing+Design). For M.Des.',
+      'UCEED':'Undergraduate design entrance. IIT Bombay/Guwahati/Jodhpur+IIITDM Jabalpur. Part A(NAT+MSQ+MCQ)+Part B(Drawing). For B.Des.',
+      'PEARL Academy':'Fashion/Media/Design. Entrance+Interview. Creative portfolio important.',
+      // ===== TEACHING =====
+      'CTET':'Central Teacher Eligibility Test. NTA. Paper 1(Class 1-5)+Paper 2(Class 6-8). Child Development+Language 1+Language 2+Subject(Maths/Science/SST). 150 Qs, 150 min. Valid for KVS/NVS/DSSSB+State schools. Lifetime validity from 2021.',
+      'DSSSB':'Delhi Subordinate Services. TGT/PGT/Primary Teacher/Librarian etc. Tier 1+Tier 2. Subject knowledge+GK+Reasoning.',
+      'KVS PGT':'Kendriya Vidyalaya Sangathan. Post Graduate Teacher. Subject exam+Interview. Central government school teacher.',
+      'NVS':'Navodaya Vidyalaya Samiti. TGT/PGT/Misc posts. Written+Interview. Residential school teacher.',
+      'UP TET':'Uttar Pradesh Teacher Eligibility Test. Paper 1+Paper 2. For UP state school teachers.',
+      'REET':'Rajasthan Eligibility Examination for Teachers. Level 1+Level 2. Large vacancies. Rajasthan board syllabus.',
+      'HTET':'Haryana Teacher Eligibility Test. Level 1/2/3. For Haryana school teachers.',
+      'BTET':'Bihar Teacher Eligibility Test. Primary+Upper Primary. Large state exam.',
+      'MP TET':'Madhya Pradesh Teacher Eligibility Test. Primary/Middle school.',
+      'CGTET':'Chhattisgarh. Primary+Upper Primary level.',
+      'AP TET':'Andhra Pradesh. Paper 1+Paper 2. Telugu medium important.',
+      'TS TET':'Telangana. Primary+Upper Primary. Telugu+English medium.',
+      'KARTET':'Karnataka. Class 1-5 and 6-8. Kannada language papers.',
+      'MAH TET':'Maharashtra Teacher Eligibility Test. Paper 1+Paper 2. Marathi important.',
+      // ===== HOTEL MANAGEMENT =====
+      'NCHM JEE':'National Council of Hotel Management. NTA. 200 Qs, 3 hrs. Numerical Ability+Reasoning+GK+English+Aptitude for Service Sector. For 3-year B.Sc Hospitality & Hotel Administration.',
+      // ===== PHARMACY =====
+      'GPAT':'Graduate Pharmacy Aptitude Test. NTA. 125 MCQs, 3 hrs. Pharmacy subjects. For M.Pharm admissions + AICTE scholarships.',
+      // ===== CA/CS/CMA =====
+      'CA Foundation':'ICAI entry level. 4 papers: 1-Accounting(100 marks)+2-Business Laws(100)+3-Maths+LR+Stats(100)+4-Business Economics(100). Papers 1&2 subjective, 3&4 objective. Twice yearly.',
+      'CA Intermediate':'ICAI. 8 papers in 2 groups. Group 1: Advanced Accounting+Corporate Laws+Taxation+Cost Accounting. Group 2: Auditing+Financial Management+Strategic Management+IT+SM. Pass both groups. 8 months after Foundation.',
+      'CA Final':'ICAI final. 8 papers. FR+SFM+Audit+Corporate Laws+SCMPE+DT+IDT+Elective. Articleship completion required. Pass rate ~10-15%.',
+      'CS Foundation':'ICSI. 4 subjects: Business Environment+Business Management+Business Economics+Fundamentals of Accounting & Auditing. 200 marks.',
+      'CS Executive':'ICSI. 7 papers in 2 modules. Company Law+Securities Law+Tax+Corporate Restructuring etc.',
+      'CS Professional':'ICSI. 9 papers in 3 modules. Advanced corporate governance and compliance.',
+      'CMA Foundation':'ICMAI. 4 papers: Fundamentals of Accounting+Business Laws+Maths & Statistics+Business Economics. Entry level cost accounting.',
+      // ===== JOURNALISM & OTHERS =====
+      'IIMC':'Indian Institute of Mass Communication. Written+Interview+Portfolio. For PG Diploma in Journalism/Advertising/Film etc.',
+      'TISS BAT':'TISS Bachelor Admission Test. For BA Social Sciences at TISS. English+Math+Reasoning+Social Awareness.',
+      'NCHM JEE':'NTA. For hotel management. 200 Qs. Numerical+Reasoning+GK+English+Hospitality Aptitude.',
+    };
+
+    const examKnowledge=EXAM_INFO[exam]||'';
+    const today=new Date();
+    const todayStr=today.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const examDate=window.EXAM_DATES&&window.EXAM_DATES[exam]?window.EXAM_DATES[exam]:null;
+    const daysToExam=examDate?Math.ceil((examDate-today)/(1000*60*60*24)):null;
+
+    const sysPrompt=`You are ${cur.name}'s personal study assistant and exam coach.
+
+TODAY: ${todayStr}
+${daysToExam!==null?`EXACT DAYS TO ${exam.toUpperCase()}: ${daysToExam} days (${examDate.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})})`:''}
+
+STUDENT PROFILE:
+- Name: ${cur.name}
+- Class/Year: ${cl||'Not specified'}
+- School/College: ${inst||'Not specified'}
+- Target Exam: ${exam||'Not specified'}
+
+${examKnowledge?`EXAM FACTS — ${exam}:\n${examKnowledge}`:exam?`NOTE: ${exam} is not in my quick-reference database, but use your full training knowledge about this exam to help ${cur.name}. Give specific syllabus, pattern, marks, preparation tips.`:''}
+
+YOUR JOB:
+- Answer ANY study question — explain concepts, solve problems, give strategies
+- Give advice personalised to ${cl} student targeting ${exam}
+- Time questions: use the EXACT days above, do NOT estimate or guess
+- Know the full syllabus, paper pattern, marking scheme for ${exam}
+- Recommend best books, topics to prioritise, time management for ${exam}
+- Motivate and encourage — be like a brilliant senior who cracked ${exam}
+
+MATH RULE: For ANY calculation, use the calculate tool. Never compute mentally.
+
+Be specific, warm, accurate. Always answer — never say you don't know an exam.`;
+
+    const messages=[
+      {role:'system',content:sysPrompt},
+      ...history,
+      {role:'user',content:txt}
+    ];
+
+    // FIRST CALL — may return a tool call
+    const r1=await fetch('https://api.cohere.com/v2/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+      body:JSON.stringify({model:'command-r-plus-08-2024',tools:[CALC_TOOL],messages})
+    });
+    const d1=await r1.json();
+    if(!r1.ok)throw new Error(d1.message||'Error '+r1.status);
+
+    let finalText='';
+
+    if(d1.message?.tool_calls?.length){
+      // AI wants to use the calculator
+      const calls=d1.message.tool_calls;
+      const toolResults=[];
+
+      // show which calculations are being done
+      const calcSteps=[];
+
+      for(const call of calls){
+        const args=JSON.parse(call.function.arguments||'{}');
+        const expr=args.expression||'';
+        const explanation=args.explanation||'';
+
+        typingEl.innerHTML=`<span style="opacity:.7">🔢 Calculating: <code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;font-family:monospace">${expr}</code></span>`;
+
+        const result=await safeCalc(expr);
+        calcSteps.push({expr,result,explanation});
+
+        toolResults.push({
+          role:'tool',
+          tool_call_id:call.id,
+          content:JSON.stringify({result,expression:expr})
+        });
+      }
+
+      // SECOND CALL — send tool results back
+      const r2=await fetch('https://api.cohere.com/v2/chat',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+        body:JSON.stringify({
+          model:'command-r-plus-08-2024',
+          messages:[
+            ...messages,
+            {role:'assistant',tool_calls:calls,content:''},
+            ...toolResults
+          ]
+        })
+      });
+      const d2=await r2.json();
+      if(!r2.ok)throw new Error(d2.message||'Error '+r2.status);
+
+      // prepend calc results to the answer
+      const calcSummary=calcSteps.map(s=>`🔢 Calculated: ${s.expr} = **${s.result}**`).join('\n');
+      finalText=calcSummary+'\n\n'+(d2.message?.content?.[0]?.text||'');
+
+    } else {
+      // No tool call — normal response
+      finalText=d1.message?.content?.[0]?.text||'';
+    }
+
+    // remove typing indicator
+    typingEl.remove();
+    addMsg(finalText,'b');
+
+  }catch(e){
+    typingEl.remove();
+    addMsg('❌ '+e.message,'b');
+    console.error(e);
+  }
+}
+
+function renderMsg(t,tp){
+  const d=document.createElement('div');
+  d.className='msg '+tp;
+  if(tp==='b' && t.length>300){
+    // preview + read more button
+    const preview=document.createElement('div');
+    preview.className='long-preview';
+    preview.textContent=t;
+    d.appendChild(preview);
+    const btn=document.createElement('button');
+    btn.className='read-more-btn';
+    btn.textContent='📖 Read Full Response';
+    btn.onclick=()=>showFormatted('Assistant Response',t);
+    d.appendChild(btn);
+  } else {
+    d.textContent=t;
+  }
+  document.getElementById('msgs').appendChild(d);
+}
+
+function addMsg(t,tp){
+  renderMsg(t,tp);
+  document.getElementById('msgs').scrollTop=99999;
+  if(!cur)return;
+  initChats();
+  const chat=getActiveChat();
+  chat.msgs.push({t,tp});
+  if(chat.msgs.length>80)chat.msgs=chat.msgs.slice(-80);
+  saveAll();
+}
+
+
+// ---- USERS TAB ----
+function renderUserGrid(){
+  document.getElementById('ugrid').innerHTML=users.map((u,i)=>`
+    <div class="uc ${u.id===cur.id?'me':''}">
+      <div class="uav">${u.avatar||AVS[i%AVS.length]}</div>
+      <div class="unn">${u.name}</div>
+      <div class="uex">${u.profile?.exam||'No exam set'}</div>
+      <div class="ubr">
+        <button class="uuse" onclick="reqSwitch(${u.id})">Switch</button>
+        <button class="udel" onclick="delFromApp(${u.id})">Delete</button>
+      </div>
+    </div>`).join('');
+}
+function createFromApp(){
+  const n=document.getElementById('nuN').value.trim(),p=document.getElementById('nuP').value,p2=document.getElementById('nuP2').value;
+  if(!n||!p){alert('Fill all fields');return;}
+  if(p!==p2){alert('Passwords do not match');return;}
+  users.push({id:Date.now(),name:n,pass:p,avatar:AVS[users.length%AVS.length],api:'',todos:[],theme:'light',profile:null});
+  saveAll();document.getElementById('nuN').value='';document.getElementById('nuP').value='';document.getElementById('nuP2').value='';
+  renderUserGrid();
+  document.getElementById('uSel').innerHTML='<option value="">Switch User</option>'+users.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+  alert('✅ User "'+n+'" created!');
+}
+function delFromApp(id){
+  if(id===cur.id){alert("Can't delete yourself!");return;}
+  if(!confirm('Delete this user?'))return;
+  users=users.filter(u=>u.id!==id);saveAll();renderUserGrid();
+}
+
+// ---- CHANGE PASSWORD ----
+function changePwd(){
+  const o=document.getElementById('cpO').value,n=document.getElementById('cpN').value,n2=document.getElementById('cpN2').value,e=document.getElementById('cpE');
+  if(o!==cur.pass){e.textContent='❌ Current password wrong';return;}
+  if(n.length<4){e.textContent='❌ New password too short';return;}
+  if(n!==n2){e.textContent='❌ Passwords do not match';return;}
+  cur.pass=n;saveAll();
+  e.style.color='green';e.textContent='✅ Password updated!';
+  document.getElementById('cpO').value='';document.getElementById('cpN').value='';document.getElementById('cpN2').value='';
+  setTimeout(()=>{e.textContent='';e.style.color='red';},3000);
+}
+
+
+// ============================================================
+// MOTIVATION + COUNTDOWN
+// ============================================================
+const QUOTES=[
+  '💪 Every page you study today is a step closer to your dream.',
+  '🔥 Champions train when no one else does.',
+  '🎯 You didn\'t come this far to only come this far.',
+  '⚡ One more chapter. One more hour. One more day closer.',
+  '🌟 The pain of study is temporary. The reward lasts forever.',
+  '🚀 Your future self is counting on you right now.',
+  '📖 Study hard in silence. Let success make the noise.',
+  '💎 Diamonds are made under pressure. So are toppers.',
+  '🏆 Top rank doesn\'t come to those who rest — it comes to those who push.',
+  '🧠 Your brain is a muscle. Train it daily.',
+  '⏰ Every second you study is stolen from the competition.',
+  '🌅 Wake up with determination. Sleep with satisfaction.',
+];
+
+window.EXAM_DATES = {
+  // ENGINEERING
+  'JEE Main':new Date('2027-01-20'),'JEE Advanced':new Date('2027-05-18'),
+  'BITSAT':new Date('2027-05-20'),'VITEEE':new Date('2027-04-10'),
+  'SRMJEEE':new Date('2027-04-18'),'COMEDK':new Date('2027-05-10'),
+  'MHT CET':new Date('2027-04-25'),'KCET':new Date('2027-04-18'),
+  'WBJEE':new Date('2027-04-20'),'AP EAMCET':new Date('2027-05-01'),
+  'TS EAMCET':new Date('2027-05-04'),'KEAM':new Date('2027-04-22'),
+  'GUJCET':new Date('2027-03-28'),'UPCET':new Date('2027-05-15'),
+  'OJEE':new Date('2027-05-12'),'BCECE':new Date('2027-05-20'),
+  'Assam CEE':new Date('2027-06-01'),'GCET':new Date('2027-05-08'),
+  'HP CET':new Date('2027-06-05'),'AMU Engineering':new Date('2027-06-10'),
+  'CUSAT CAT':new Date('2027-04-27'),'Manipal MET':new Date('2027-04-14'),
+  'LPU NEST':new Date('2027-05-05'),'KIIT':new Date('2027-03-01'),
+  'BVP CET':new Date('2027-05-10'),'PESSAT':new Date('2027-04-28'),
+  'PERA CIT':new Date('2027-05-20'),'TANCET':new Date('2027-03-29'),
+  // MEDICAL
+  'NEET UG':new Date('2027-05-02'),'NEET PG':new Date('2027-08-01'),
+  'NEET MDS':new Date('2027-01-20'),'AIAPGET':new Date('2027-09-01'),
+  'FMGE':new Date('2026-12-05'),'INICET':new Date('2027-07-01'),
+  'NEET SS':new Date('2027-09-15'),'BHU BUCET':new Date('2027-05-20'),
+  // MANAGEMENT
+  'CAT':new Date('2026-11-30'),'XAT':new Date('2027-01-05'),
+  'MAT':new Date('2026-09-01'),'CMAT':new Date('2027-01-25'),
+  'SNAP':new Date('2026-12-14'),'NMAT':new Date('2026-10-01'),
+  'IIFT':new Date('2026-12-07'),'TISSNET':new Date('2027-01-10'),
+  'MICAT':new Date('2026-12-06'),'IRMASAT':new Date('2027-02-01'),
+  'ATMA':new Date('2027-02-22'),'IBSAT':new Date('2026-12-25'),
+  'KMAT Karnataka':new Date('2026-09-20'),'TANCET MBA':new Date('2027-03-29'),
+  'APICET':new Date('2027-05-10'),'NMIMS NPAT':new Date('2027-05-17'),
+  // CIVIL SERVICES
+  'UPSC CSE':new Date('2027-05-25'),'UPSC CAPF':new Date('2026-08-09'),
+  'UPSC CDS':new Date('2026-09-07'),'UPSC NDA':new Date('2026-09-14'),
+  'UPPSC PCS':new Date('2026-12-20'),'BPSC':new Date('2026-10-01'),
+  'MPSC':new Date('2026-12-07'),'TNPSC Group 1':new Date('2027-01-15'),
+  'TNPSC Group 2':new Date('2026-10-12'),'KPSC KAS':new Date('2026-09-14'),
+  'RPSC RAS':new Date('2026-11-08'),'APPSC':new Date('2026-10-04'),
+  'TSPSC':new Date('2026-11-15'),'GPSC':new Date('2026-12-01'),
+  'JPSC':new Date('2027-02-01'),'CGPSC':new Date('2027-01-10'),
+  'MPPSC':new Date('2026-12-20'),'WBPSC':new Date('2027-03-01'),
+  'PPSC':new Date('2026-11-01'),'HPSC HCS':new Date('2026-10-18'),
+  'UKPSC':new Date('2027-03-15'),'OPSC':new Date('2027-02-08'),
+  'APSC Assam':new Date('2027-04-01'),'JKPSC':new Date('2027-05-01'),
+  // BANKING
+  'IBPS PO':new Date('2026-10-10'),'IBPS Clerk':new Date('2026-11-20'),
+  'IBPS SO':new Date('2026-12-28'),'IBPS RRB PO':new Date('2026-08-01'),
+  'IBPS RRB Clerk':new Date('2026-08-24'),'SBI PO':new Date('2026-11-01'),
+  'SBI Clerk':new Date('2026-09-05'),'SBI SO':new Date('2026-12-28'),
+  'RBI Grade B':new Date('2026-09-06'),'RBI Assistant':new Date('2027-02-01'),
+  'NABARD Grade A':new Date('2026-08-15'),'NABARD Grade B':new Date('2026-08-15'),
+  'SEBI Grade A':new Date('2026-11-01'),'LIC AAO':new Date('2027-02-08'),
+  'LIC HFL':new Date('2026-10-01'),'NIACL':new Date('2026-09-01'),
+  'NICL':new Date('2026-10-15'),'UIIC':new Date('2026-11-01'),
+  'BOB PO':new Date('2026-10-01'),'Canara Bank PO':new Date('2027-01-15'),
+  // SSC
+  'SSC CGL':new Date('2026-09-15'),'SSC CHSL':new Date('2026-07-15'),
+  'SSC MTS':new Date('2026-10-01'),'SSC JE':new Date('2026-11-01'),
+  'SSC GD':new Date('2027-01-05'),'SSC CPO':new Date('2026-09-01'),
+  'SSC Steno':new Date('2026-11-10'),'SSC JHT':new Date('2026-08-01'),
+  // RAILWAYS
+  'RRB NTPC':new Date('2026-10-01'),'RRB Group D':new Date('2027-01-20'),
+  'RRB ALP':new Date('2026-11-15'),'RRB JE':new Date('2027-03-01'),
+  'RRB Paramedical':new Date('2026-12-01'),'RRC Group D':new Date('2027-01-20'),
+  // DEFENCE
+  'NDA':new Date('2026-09-14'),'CDS':new Date('2026-09-07'),
+  'AFCAT':new Date('2026-08-16'),'Agniveer Army':new Date('2026-07-01'),
+  'Agniveer Navy':new Date('2026-07-10'),'Agniveer Air Force':new Date('2026-07-20'),
+  'Indian Coast Guard':new Date('2026-10-01'),'MNS':new Date('2027-01-15'),
+  // LAW
+  'CLAT':new Date('2026-11-30'),'AILET':new Date('2026-12-07'),
+  'SLAT':new Date('2026-12-15'),'DU LLB':new Date('2027-06-05'),
+  'CLAT PG':new Date('2026-11-30'),'AP LAWCET':new Date('2027-04-15'),
+  'TS LAWCET':new Date('2027-04-20'),'MH CET Law':new Date('2027-05-01'),
+  // INTEGRATED
+  'IPMAT':new Date('2027-05-10'),'IPMAT (IIM)':new Date('2027-05-10'),
+  'JIPMAT':new Date('2027-05-15'),'DU JAT':new Date('2027-06-15'),
+  'NMIMS NPAT UG':new Date('2027-05-17'),'BHU UET':new Date('2027-05-20'),
+  'CUET UG':new Date('2027-05-06'),'CUET':new Date('2027-05-06'),
+  'GGSIPU CET':new Date('2027-06-01'),'SET Symbiosis':new Date('2027-05-08'),
+  // PG ENGINEERING & RESEARCH
+  'GATE':new Date('2027-02-01'),'JAM':new Date('2027-02-08'),
+  'JEST':new Date('2027-02-16'),'TIFR GS':new Date('2026-12-07'),
+  'NBHM':new Date('2027-01-24'),'CSIR NET':new Date('2026-07-06'),
+  'UGC NET':new Date('2026-11-01'),'PGCET':new Date('2027-06-15'),
+  // DESIGN & ARCHITECTURE
+  'NATA':new Date('2027-04-15'),'NID':new Date('2027-01-12'),
+  'NIFT':new Date('2027-01-14'),'CEED':new Date('2027-01-19'),
+  'UCEED':new Date('2027-01-19'),'PEARL Academy':new Date('2027-02-01'),
+  // TEACHING
+  'CTET':new Date('2026-12-01'),'DSSSB':new Date('2026-09-01'),
+  'KVS PGT':new Date('2026-10-01'),'NVS':new Date('2026-11-01'),
+  'UP TET':new Date('2026-11-08'),'REET':new Date('2027-02-01'),
+  'HTET':new Date('2026-11-02'),'BTET':new Date('2026-12-01'),
+  'MP TET':new Date('2026-10-01'),'CGTET':new Date('2026-12-01'),
+  'AP TET':new Date('2026-09-01'),'TS TET':new Date('2026-09-15'),
+  'KARTET':new Date('2026-10-10'),'MAH TET':new Date('2026-12-20'),
+  // HOTEL MANAGEMENT
+  'NCHM JEE':new Date('2027-04-28'),'IIHM eCHAT':new Date('2027-04-01'),
+  // PHARMACY
+  'GPAT':new Date('2027-02-06'),'AU AIMEE':new Date('2027-05-01'),
+  // CA CS CMA
+  'CA Foundation':new Date('2026-11-14'),'CA Intermediate':new Date('2026-11-03'),
+  'CA Final':new Date('2026-11-03'),'CS Foundation':new Date('2026-12-01'),
+  'CS Executive':new Date('2026-12-20'),'CMA Foundation':new Date('2026-12-10'),
+  // JOURNALISM & MASS COMM
+  'IIMC':new Date('2027-06-01'),'Symbiosis MCAT':new Date('2027-05-10'),
+  // SOCIAL WORK
+  'TISS BAT':new Date('2027-04-14'),
+};
+
+let motivInterval=null;
+
+function startMotivation(){
+  clearInterval(motivInterval);
+  const exam=cur?.profile?.exam||'';
+  let qi=Math.floor(Math.random()*QUOTES.length);
+  function showNext(){
+    document.getElementById('motivQuote').textContent=QUOTES[qi%QUOTES.length];
+    qi++;
+  }
+  showNext();
+  motivInterval=setInterval(showNext,8000);
+  document.getElementById('trialBadge').style.display='none';
+  document.getElementById('bigTimer').style.display='block';
+  startBigTimer();
+}
+
+let bigTimerInterval=null;
+
+function startBigTimer(){
+  clearInterval(bigTimerInterval);
+  const exam=cur?.profile?.exam||'';
+  const dates=window.EXAM_DATES||{};
+  const target=dates[exam]||null;
+
+  document.getElementById('timerExamName').textContent=
+    exam?`🎯 ${exam} Countdown`:'🎯 Set your Target Exam in profile';
+  document.getElementById('timerQuote').textContent=
+    QUOTES[Math.floor(Math.random()*QUOTES.length)];
+
+  if(!target){
+    ['timerDays','timerH','timerM','timerS'].forEach(id=>{
+      document.getElementById(id).textContent='--';
+    });
+    document.getElementById('countdownChips').innerHTML=
+      exam?`<div class="chip exam-name">🎯 ${exam} — date coming soon</div>`:'';
+    return;
+  }
+
+  function tick(){
+    const now=new Date();
+    const diff=target-now;
+    if(diff<=0){
+      document.getElementById('timerDays').textContent='0';
+      document.getElementById('timerH').textContent='00';
+      document.getElementById('timerM').textContent='00';
+      document.getElementById('timerS').textContent='00';
+      document.getElementById('timerExamName').textContent=`✅ ${exam} — Exam Day!`;
+      clearInterval(bigTimerInterval);
+      return;
+    }
+    const days=Math.floor(diff/(1000*60*60*24));
+    const hrs=String(Math.floor((diff%(1000*60*60*24))/(1000*60*60))).padStart(2,'0');
+    const mins=String(Math.floor((diff%(1000*60*60))/(1000*60))).padStart(2,'0');
+    const secs=String(Math.floor((diff%(1000*60))/1000)).padStart(2,'0');
+    document.getElementById('timerDays').textContent=days;
+    document.getElementById('timerH').textContent=hrs;
+    document.getElementById('timerM').textContent=mins;
+    document.getElementById('timerS').textContent=secs;
+    const urgent=days<30;
+    document.getElementById('countdownChips').innerHTML=`
+      <div class="chip exam-name">🎯 ${exam}</div>
+      <div class="chip ${urgent?'urgent':''}"><span class="num">${days}</span><span class="lbl">Days</span></div>
+      <div class="chip ${urgent?'urgent':''}"><span class="num">${hrs}</span><span class="lbl">Hours</span></div>
+      <div class="chip ${urgent?'urgent':''}"><span class="num">${mins}</span><span class="lbl">Mins</span></div>
+    `;
+  }
+  tick();
+  bigTimerInterval=setInterval(tick,1000);
+}
+
+function updateCountdown(){}
+
+
+// ============================================================
+// FORMATTED RESPONSE MODAL
+// ============================================================
+async function showFormatted(title,mdText){
+  if(typeof marked==='undefined') await ldScript('https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js');
+  document.getElementById('fModalTitle').textContent=title;
+  document.getElementById('fModalBody').innerHTML=marked.parse(mdText);
+  document.getElementById('fModal').classList.remove('off');
+}
+
+// BOOK VIEWER
+let bookPages=[];
+let bookCurrent=0;
+let bookFlipping=false;
+
+function openBook(pages,title){
+  bookPages=pages; bookCurrent=0; bookFlipping=false;
+  document.getElementById('bookTitle').textContent=title||'📄 Question Paper';
+  renderBook(false);
+  document.getElementById('bookBg').classList.remove('off');
+}
+function closeBook(){ document.getElementById('bookBg').classList.add('off'); }
+
+function renderBook(skipTransition){
+  const over=bookPages[bookCurrent]||{title:'',content:''};
+  const under=bookPages[bookCurrent+1]||{title:'',content:''};
+  const el=document.getElementById('pageOver');
+  el.style.transition='none';
+  el.classList.remove('flip-fwd','flip-bwd-start','flip-bwd');
+  el.style.transform='rotateY(0deg)';
+  document.getElementById('pageOverContent').innerHTML='<h2>'+over.title+'</h2><div>'+over.content+'</div>';
+  document.getElementById('pageOverNum').textContent='Page '+(bookCurrent+1)+' of '+bookPages.length;
+  document.getElementById('pageUnderContent').innerHTML=under.content?'<h2>'+under.title+'</h2><div>'+under.content+'</div>':'';
+  document.getElementById('pageUnderNum').textContent=under.content?'Page '+(bookCurrent+2)+' of '+bookPages.length:'';
+  document.getElementById('bPager').textContent=(bookCurrent+1)+' / '+bookPages.length;
+  document.getElementById('bPrev').disabled=bookCurrent===0;
+  document.getElementById('bNext').disabled=bookCurrent>=bookPages.length-1;
+  requestAnimationFrame(()=>{ el.style.transition='transform .55s cubic-bezier(.4,0,.2,1)'; });
+}
+
+function bookNext(){
+  if(bookFlipping||bookCurrent>=bookPages.length-1)return;
+  bookFlipping=true;
+  const el=document.getElementById('pageOver');
+  el.classList.add('flip-fwd');
+  setTimeout(()=>{ bookCurrent++; bookFlipping=false; renderBook(false); },560);
+}
+
+function bookPrev(){
+  if(bookFlipping||bookCurrent<=0)return;
+  bookFlipping=true;
+  const prev=bookPages[bookCurrent-1]||{title:'',content:''};
+  document.getElementById('pageUnderContent').innerHTML='<h2>'+prev.title+'</h2><div>'+prev.content+'</div>';
+  document.getElementById('pageUnderNum').textContent='Page '+bookCurrent+' of '+bookPages.length;
+  const el=document.getElementById('pageOver');
+  el.style.transition='none';
+  el.style.transform='rotateY(-180deg)';
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      el.style.transition='transform .55s cubic-bezier(.4,0,.2,1)';
+      el.style.transform='rotateY(0deg)';
+      setTimeout(()=>{ bookCurrent--; bookFlipping=false; renderBook(false); },560);
+    });
+  });
+}
+
+// ============================================================
+// BUILD PREDICTION BOOK from AI text
+// ============================================================
+function buildPredictionBook(mdText, examName){
+  const pages=[];
+
+  // Cover page
+  pages.push({
+    title:'📊 '+examName+' Prediction Paper',
+    content:`<div style="text-align:center;padding:20px 0">
+      <div style="font-size:48px;margin-bottom:16px">📄</div>
+      <div style="font-size:16px;font-weight:700;color:#667eea;margin-bottom:8px">AI-Generated Prediction</div>
+      <div style="font-size:13px;color:#888;line-height:1.7">Based on analysis of your uploaded papers.<br>Questions on the following pages.<br>Answers at the end.<br><br><em>Click → to begin</em></div>
+    </div>`
+  });
+
+  // Extract questions using regex
+  const lines=mdText.split('\n');
+  const questions=[];
+  const answers=[];
+  let inQSection=false, inASection=false;
+  let currentQ='',currentA='',qNum=0;
+
+  lines.forEach(line=>{
+    const stripped=line.trim();
+    if(/predicted question|likely question|sample question/i.test(stripped)) inQSection=true;
+    if(/answer|solution/i.test(stripped) && !/(question|topic)/i.test(stripped)) inASection=true;
+    // numbered question lines like "1." or "Q1." or "**1.**"
+    const qMatch=stripped.match(/^[\*\s]*(?:Q\.?\s*)?(\d+)[\.\)]\s*(.+)/);
+    if(qMatch && inQSection && !inASection){
+      if(currentQ){questions.push(currentQ);}
+      qNum++;
+      currentQ=`<div class="qnum">Question ${qNum}</div><div class="qtext">${qMatch[2].replace(/\*\*/g,'')}</div>`;
+    } else if(qMatch && inASection){
+      if(currentA){answers.push(currentA);}
+      currentA=`<div class="ans-label">Answer ${qMatch[1]}</div><div class="ans-text">${qMatch[2].replace(/\*\*/g,'')}</div>`;
+    } else if(inQSection && !inASection && stripped && !stripped.startsWith('#')){
+      if(currentQ) currentQ+=`<div class="qtext" style="font-size:12px;color:#555">${stripped.replace(/\*\*/g,'')}</div>`;
+    } else if(inASection && stripped && !stripped.startsWith('#')){
+      if(currentA) currentA+=`<span style="font-size:12px"> ${stripped.replace(/\*\*/g,'')}</span>`;
+    }
+  });
+  if(currentQ) questions.push(currentQ);
+  if(currentA) answers.push(currentA);
+
+  // If no questions parsed, fall back to full analysis pages
+  if(!questions.length){
+    const sections=mdText.split(/#{1,3} /g).filter(s=>s.trim());
+    sections.forEach((s,i)=>{
+      const firstLine=s.split('\n')[0];
+      const rest=s.split('\n').slice(1).join('\n');
+      pages.push({
+        title:firstLine.replace(/\*\*/g,'').substring(0,60),
+        content:`<div style="font-size:13px;line-height:1.7;color:#333">${rest.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}</div>`
+      });
+    });
+  } else {
+    // Question pages (3 per page)
+    const PER_PAGE=3;
+    for(let i=0;i<questions.length;i+=PER_PAGE){
+      const batch=questions.slice(i,i+PER_PAGE);
+      pages.push({
+        title:`📝 Questions ${i+1}–${Math.min(i+PER_PAGE,questions.length)}`,
+        content:batch.join('<hr style="margin:12px 0;border:1px dashed #ddd">')
+      });
+    }
+    // Answer pages
+    if(answers.length){
+      for(let i=0;i<answers.length;i+=PER_PAGE){
+        const batch=answers.slice(i,i+PER_PAGE);
+        pages.push({
+          title:`✅ Answers ${i+1}–${Math.min(i+PER_PAGE,answers.length)}`,
+          content:batch.join('<hr style="margin:12px 0;border:1px dashed #eee">')
+        });
+      }
+    }
+  }
+
+  // Back cover
+  pages.push({
+    title:'🏆 Keep Going!',
+    content:`<div style="text-align:center;padding:20px 0">
+      <div style="font-size:48px;margin-bottom:16px">🌟</div>
+      <div style="font-size:15px;font-weight:700;color:#22c55e;margin-bottom:8px">You've seen the prediction!</div>
+      <div style="font-size:13px;color:#888;line-height:1.8">Now go revise the high-probability topics.<br>Attempt the predicted questions.<br>Check your answers.<br><br><strong style="color:#667eea">You've got this. 💪</strong></div>
+    </div>`
+  });
+
+  return pages;
+}
+
+// ---- TAB CHAT (mirrors sidebar chat, same sessions) ----
+function syncTabChat(){
+  if(!cur)return;
+  initChats();
+  const chat=getActiveChat();
+  document.getElementById('tabChatName').textContent='💬 '+chat.name;
+  const box=document.getElementById('tabMsgs');
+  box.innerHTML='';
+  if(!chat.msgs.length){
+    addTabMsg(`Hey ${cur.name}! 👋 Ask me anything — math, science, exam tips, everything!`,'b');
+  } else {
+    chat.msgs.forEach(m=>{
+      const d=document.createElement('div');
+      d.className='msg '+m.tp;
+      if(m.tp==='b'&&m.t.length>300){
+        const p=document.createElement('div');p.className='long-preview';p.textContent=m.t;d.appendChild(p);
+        const btn=document.createElement('button');btn.className='read-more-btn';btn.textContent='📖 Read Full';btn.onclick=()=>showFormatted('Response',m.t);d.appendChild(btn);
+      } else {d.textContent=m.t;}
+      box.appendChild(d);
+    });
+  }
+  box.scrollTop=99999;
+  renderTabChatList();
+}
+
+function renderTabChatList(){
+  const el=document.getElementById('tabChatListInner')||document.getElementById('tabChatList');
+  if(!el)return;
+  el.innerHTML=cur.chats.map(c=>`
+    <div style="padding:8px 12px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border);background:${c.id===cur.activeChatId?'rgba(102,126,234,.1)':'transparent'}" onclick="switchChat(${c.id});syncTabChat()">
+      <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${c.id===cur.activeChatId?'var(--accent)':'var(--text)'}">💬 ${c.name}</span>
+      <button onclick="deleteChat(${c.id});syncTabChat();event.stopPropagation()" style="background:none;border:none;cursor:pointer;color:#f00;font-size:11px">🗑</button>
+    </div>`).join('');
+}
+
+function toggleTabChatList(){
+  const el=document.getElementById('tabChatList');
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function newChatFromTab(){
+  newChat();
+  syncTabChat();
+}
+
+function addTabMsg(t,tp){
+  const box=document.getElementById('tabMsgs');
+  if(!box)return;
+  const d=document.createElement('div');
+  d.className='msg '+tp;
+  if(tp==='b'&&t.length>300){
+    const p=document.createElement('div');p.className='long-preview';p.textContent=t;d.appendChild(p);
+    const btn=document.createElement('button');btn.className='read-more-btn';btn.textContent='📖 Read Full';btn.onclick=()=>showFormatted('Response',t);d.appendChild(btn);
+  } else {d.textContent=t;}
+  box.appendChild(d);
+  box.scrollTop=99999;
+}
+
+async function sendTabMsg(){
+  const txt=document.getElementById('tabCIn').value.trim();
+  if(!txt)return;
+  document.getElementById('tabCIn').value='';
+  // use the same addMsg which saves to both sidebar and storage
+  addMsg(txt,'u');
+  // also render in tab
+  addTabMsg(txt,'u');
+
+  const k=document.getElementById('apiI').value.trim();
+  if(!k){addMsg('⚠️ Paste your Cohere API key in the Predictor tab red box!','b');addTabMsg('⚠️ Paste your Cohere API key in the Predictor tab red box!','b');return;}
+
+  const chat=getActiveChat();
+  if(chat.msgs.filter(m=>m.tp==='u').length===1){
+    chat.name=txt.length>30?txt.substring(0,30)+'…':txt;
+    saveAll();
+    document.getElementById('tabChatName').textContent='💬 '+chat.name;
+    document.getElementById('curChatName').textContent='💬 '+chat.name;
+    renderChatList();renderTabChatList();
+  }
+
+  // typing indicator in tab
+  const typEl=document.createElement('div');typEl.className='msg b';typEl.innerHTML='<span style="opacity:.5">🔢 Thinking...</span>';
+  document.getElementById('tabMsgs').appendChild(typEl);document.getElementById('tabMsgs').scrollTop=99999;
+
+  try{
+    const exam=cur.profile?.exam||'';
+    const history=chat.msgs.slice(-14).map(m=>({role:m.tp==='u'?'user':'assistant',content:m.t}));
+    const sysPrompt=`You are ${cur.name}'s smart study assistant.${exam?' Target exam: '+exam+'.':''} ${cur.profile?.cl?' Class: '+cur.profile.cl+'.':''}
+MATH RULE: For ANY calculation, use the calculate tool. Never compute in your head.
+Answer ANY study or academic question. Be warm, clear, and accurate.`;
+
+    const messages=[{role:'system',content:sysPrompt},...history,{role:'user',content:txt}];
+    const r1=await fetch('https://api.cohere.com/v2/chat',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'command-r-plus-08-2024',tools:[CALC_TOOL],messages})});
+    const d1=await r1.json();
+    if(!r1.ok)throw new Error(d1.message||'Error '+r1.status);
+    let finalText='';
+    if(d1.message?.tool_calls?.length){
+      const calls=d1.message.tool_calls;
+      const toolResults=[];
+      const calcSteps=[];
+      for(const call of calls){
+        const args=JSON.parse(call.function.arguments||'{}');
+        const expr=args.expression||'';
+        typEl.innerHTML=`<span style="opacity:.7">🔢 Calculating: <code>${expr}</code></span>`;
+        const result=await safeCalc(expr);
+        calcSteps.push({expr,result});
+        toolResults.push({role:'tool',tool_call_id:call.id,content:JSON.stringify({result,expression:expr})});
+      }
+      const r2=await fetch('https://api.cohere.com/v2/chat',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'command-r-plus-08-2024',messages:[...messages,{role:'assistant',tool_calls:calls,content:''},...toolResults]})});
+      const d2=await r2.json();
+      if(!r2.ok)throw new Error(d2.message||'Error '+r2.status);
+      const calcSummary=calcSteps.map(s=>`🔢 Calculated: ${s.expr} = **${s.result}**`).join('\n');
+      finalText=calcSummary+'\n\n'+(d2.message?.content?.[0]?.text||'');
+    } else {
+      finalText=d1.message?.content?.[0]?.text||'';
+    }
+    typEl.remove();
+    addMsg(finalText,'b');
+    addTabMsg(finalText,'b');
+  }catch(e){
+    typEl.remove();
+    const err='❌ '+e.message;
+    addMsg(err,'b');addTabMsg(err,'b');
+  }
+}
+
+
+// ---- REAL CALCULATOR ----
+let calcExprStr = '';
+let calcResult = '0';
+let calcJustEvaled = false;
+
+function calcUpdate(){
+  document.getElementById('calcExpr').textContent = calcExprStr;
+  document.getElementById('calcOut').textContent = calcResult;
+}
+
+function calcInput(val){
+  if(calcJustEvaled){
+    // start new expression after equals
+    if(/[0-9.]/.test(val)){calcExprStr='';calcResult='0';}
+    calcJustEvaled=false;
+  }
+  calcExprStr += val;
+  calcResult = calcExprStr; // show expression in display
+  calcUpdate();
+}
+
+async function calcEquals(){
+  if(!calcExprStr)return;
+  document.getElementById('calcExpr').textContent = calcExprStr + ' =';
+  const result = await safeCalc(calcExprStr);
+  if(result.startsWith('Error')){
+    calcResult = 'Error';
+    document.getElementById('calcOut').style.color = '#ff6b6b';
+  } else {
+    calcResult = result;
+    document.getElementById('calcOut').style.color = '#fff';
+  }
+  document.getElementById('calcOut').textContent = calcResult;
+  calcJustEvaled = true;
+}
+
+function calcClear(){
+  calcExprStr = '';
+  calcResult = '0';
+  calcJustEvaled = false;
+  document.getElementById('calcOut').style.color = '#fff';
+  calcUpdate();
+}
+
+function calcBackspace(){
+  if(calcJustEvaled){ calcClear(); return; }
+  calcExprStr = calcExprStr.slice(0,-1);
+  calcResult = calcExprStr || '0';
+  calcUpdate();
+}
+
+function calcToggleSign(){
+  if(!calcExprStr) return;
+  if(calcExprStr.startsWith('-')){
+    calcExprStr = calcExprStr.slice(1);
+  } else {
+    calcExprStr = '-' + calcExprStr;
+  }
+  calcResult = calcExprStr;
+  calcUpdate();
+}
+
+// old functions kept for compatibility
+async function runCalc(){}
+function appendCalc(val){ calcInput(val); }
+
+
+function toggleSidebar(){
+  document.querySelector('.sidebar').classList.toggle('open');
+}
+
+function saveAll(){
+  const idx=users.findIndex(u=>u.id===cur.id);
+  if(idx>=0)users[idx]=cur;
+  localStorage.setItem('examIntelFinal',JSON.stringify(users));
+}
+function ldScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+</script>
+</body>
+</html>
