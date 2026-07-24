@@ -907,6 +907,22 @@ const GOOGLE_CLIENT_ID = '132079774560-ki8qdns51uvs3qsuf0n7mj4aempn18vr.apps.goo
 
 let googleUser = null; // {email, name, picture, sub}
 
+// ---- CHAT INIT (needed early — called from handleGoogleCredential) ----
+function initChats(){
+  if(!cur) return;
+  if(!cur.chats||!cur.chats.length){
+    cur.chats=[{id:Date.now(),name:'Chat 1',msgs:[]}];
+    cur.activeChatId=cur.chats[0].id;
+    saveAll();
+  }
+  if(!cur.activeChatId) cur.activeChatId=cur.chats[0].id;
+}
+
+function getActiveChat(){
+  if(!cur||!cur.chats||!cur.chats.length) return {id:0,name:'Chat',msgs:[]};
+  return cur.chats.find(c=>c.id===cur.activeChatId)||cur.chats[0];
+}
+
 // ---- SAVE ----
 function saveAll(){
   try{
