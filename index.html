@@ -1517,6 +1517,9 @@ document.addEventListener('DOMContentLoaded', function(){
     dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='#aaa';loadFiles(e.dataTransfer.files);});
   }
   if(fi) fi.addEventListener('change',e=>loadFiles(e.target.files));
+  // Todo input enter key
+  const tIn=document.getElementById('tIn');
+  if(tIn) tIn.onkeypress=e=>{if(e.key==='Enter')addTodo();};
 
   // Pre-initialize Google GIS when it's available
   function initGoogle(){
@@ -1630,13 +1633,13 @@ Top 5 must-revise in the final week.`}]})});
 
 // ---- TODO ----
 function addTodo(){
-  const t=document.getElementById('tIn').value.trim(),p=document.getElementById('tPr').value;
+  const t=document.getElementById('tIn')?.value?.trim(),p=document.getElementById('tPr')?.value||'normal';
   if(!t)return;
   if(!cur.todos)cur.todos=[];
   cur.todos.push({t,done:false,prio:p,d:new Date().toLocaleDateString('en-IN')});
   saveAll();const tInEl=document.getElementById('tIn');if(tInEl)tInEl.value='';renderTodos();
 }
-document.getElementById('tIn').onkeypress=e=>{if(e.key==='Enter')addTodo();};
+// tIn keypress wired in DOMContentLoaded
 
 function renderTodos(){
   if(!cur)return;
