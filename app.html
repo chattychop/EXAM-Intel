@@ -1045,7 +1045,7 @@ function applyHistoryCode(){ return false; }
 
 // ---- JSONBIN CONFIG ----
 const EI_BIN='6a30dea2da38895dfec7bede';
-const EI_JKEY='$2a$10$6qmVIqD9vfUdur5dAZqc4eHFHI.6V5jIIVM6wiS1QyiFXgorvBs1G';
+const EI_JKEY='$2a$10$Y9xrzrT07110I9OR84fqGuYGcP6MrU3oDAdY0k8FrebTZUjSniBkW';
 let appConfig=null;
 let lastAnnText=''; // track which announcement is currently showing
 
@@ -1186,17 +1186,19 @@ async function autoRegisterUser(){
 }
 
 
-let _fetchingConfig = false; // lock to prevent overlapping fetches
+let _fetchingConfig = false;
 
 function startConfigPolling(){
-  // Run immediately on start
+  // JSONBin fetch — once on load, then every 5 minutes only
   doConfigFetch();
-  // Then every 2 seconds exactly like Inbox
-  setInterval(doConfigFetch, 2000);
+  setInterval(doConfigFetch, 5*60*1000);
+
+  // Banner check every 2 seconds — reads from memory (appConfig), NO API call
+  setInterval(showAnnouncement, 2000);
 }
 
 async function doConfigFetch(){
-  if(_fetchingConfig) return; // skip if already fetching
+  if(_fetchingConfig) return;
   _fetchingConfig = true;
   try{
     await fetchAppConfig();
