@@ -2295,7 +2295,7 @@ async function sendMsg(){
   const cInEl=document.getElementById('cIn');if(cInEl)cInEl.value='';
   const adminKey = getAppCohereKey()||getAppGroqKey();
   const k = adminKey || localStorage.getItem('ei_own_key') || '';
-  if(!k){addMsg('⚠️ No API key configured. Ask admin to set up ExamIntel.','b');return;}
+  if(!k){addMsg('⚠️ ExamIntel Pro is currently undergoing maintenance. We\'ll be back shortly — thank you for your patience! 🙏','b');return;}
 
   // Check message limit
   const userEmail = cur?.googleEmail || cur?.name || 'user';
